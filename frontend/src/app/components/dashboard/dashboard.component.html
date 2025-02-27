@@ -1,0 +1,169 @@
+<div class="min-h-screen flex">
+ <!-- Add button, middle of screen and sticky to bottom -->
+  <button class="rounded-full bg-blue-400 p-5 flex justify-center items-center fixed bottom-4 left-1/2 hover:translate-y-[-10px] transform -translate-x-1/2 transition-all duration-300" 
+  (click)="openModal()">
+    + Add new item
+   </button>
+
+  <!-- Sidebar -->
+  <aside class="w-72 bg-gray-900 text-white flex flex-col p-4">
+    <h2 class="text-2xl font-bold mb-6">MemoryDrawer</h2>
+
+    <!-- Search -->
+    <div class="mb-6">
+      <input
+        type="text"
+        placeholder="Search All My Stuff"
+        class="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400"
+      />
+    </div>
+
+    <!-- Navigation Items -->
+    <nav class="flex-1">
+      <ul class="space-y-4">
+        <li class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700">
+          The Pile
+        </li>
+        <li class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700">
+          Logbook
+        </li>
+        <li
+          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
+          (click)="setActiveList('books')"
+        >
+          <img
+            *ngIf="firstBookImageUrl"
+            [src]="firstBookImageUrl"
+            alt="First Book"
+            class="nav-image ml-2"
+          />
+          <span class="ml-3">Books to Read</span>
+        </li>
+        <li
+          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
+          (click)="setActiveList('games')"
+        >
+          <img
+            *ngIf="firstGameImageUrl"
+            [src]="firstGameImageUrl"
+            alt="First Game"
+            class="nav-image ml-2"
+          />
+          <span class="ml-3">Games to Play</span>
+        </li>
+        <li
+          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
+          (click)="setActiveList('links')"
+        >
+          <img
+            [src]=""
+            alt="Default Link"
+            class="nav-image ml-2"
+          />
+          <span class="ml-3">Saved Links</span>
+        </li>
+        <li
+          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
+          (click)="setActiveList('movies')"
+        >
+          <img
+            *ngIf="firstMovieImageUrl"
+            [src]="firstMovieImageUrl"
+            alt="First Movie"
+            class="nav-image ml-2"
+          />
+          <span class="ml-3">Movies & Shows to Watch</span>
+        </li>
+        <li
+          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
+          (click)="setActiveList('albums')"
+        >
+          <img
+            *ngIf="firstAlbumImageUrl"
+            [src]="firstAlbumImageUrl"
+            alt="First Album"
+            class="nav-image ml-2"
+          />
+          <span class="ml-3">Albums to Listen to</span>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Logout Button -->
+    <button
+      class="mt-6 bg-red-500 p-2 rounded-md hover:bg-red-600"
+      (click)="logout()"
+    >
+      Logout
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 bg-gray-950 text-white p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold">The Pile</h1>
+      <p class="text-gray-400">
+        A quick place to save things you're not ready to organize.
+      </p>
+    </div>
+
+    <!-- Content Area -->
+    <!-- Movies -->
+    <div *ngIf="showMoviesList" class="grid grid-cols-5 space-x-2.5">
+      <div *ngFor="let movie of movies" class="">
+        <img
+          [src]="
+            movie.poster_path
+              ? getPosterUrl(movie.poster_path)
+              : 'https://via.placeholder.com/150'
+          "
+          alt="{{ movie.title }}"
+          class="standard-image"
+        />
+        <h3 class="mt-2 text-sm font-light">{{ movie.title }}</h3>
+      </div>
+    </div>
+
+    <!-- Books -->
+    <div *ngIf="showBooksList" class="grid grid-cols-5 space-x-2.5">
+      <div *ngFor="let book of books" class="">
+        <img [src]="book.cover" alt="{{ book.title }}" class="standard-image" />
+        <h3 class="mt-2 text-sm font-light">{{ book.title }}</h3>
+      </div>
+    </div>
+
+    <!-- Albums -->
+    <div *ngIf="showAlbumsList" class="grid grid-cols-5 space-x-2.5">
+      <div *ngFor="let album of albums" class="">
+        <img
+          [src]="album.artwork"
+          alt="{{ album.title }}"
+          class="standard-image"
+        />
+        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ album.title }}</h3>
+        <h3 class="mt-2 text-xs font-light text-gray-400">
+          {{ album.artist }}
+        </h3>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div *ngIf="showLinksList" class="grid grid-cols-5 space-x-2.5">
+      <div *ngFor="let link of links" class="">
+        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ link.title }}</h3>
+        <h3 class="mt-2 text-xs font-light text-gray-400">
+          {{ link.title }}
+        </h3>
+      </div>
+    </div>
+
+    <!-- Games -->
+    <div *ngIf="showGamesList" class="grid grid-cols-5 space-x-2.5">
+      <div *ngFor="let game of games" class="">
+        <img [src]="game.cover" alt="{{ game.title }}" class="standard-image" />
+        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ game.title }}</h3>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,38 @@
+.env
+node_modules/
+*.environment.ts
+environment.*.ts
+environment.ts
+/spring-server/# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore application configuration files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json
+
+# Ignore secrets and sensitive information
+secrets.json
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore Rider settings
+.idea/
+
+# Ignore JetBrains Rider project files
+*.sln.iml
+
+# Ignore other common files
+*.log
+*.tlog
+*.vspscc
+*.vssscc

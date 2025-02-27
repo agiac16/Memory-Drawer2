@@ -1,0 +1,133 @@
+<div class="fixed inset-0 flex items-center justify-center bg-opacity-50">
+  <div class="bg-gray-700 p-6 rounded-lg w-full max-w-3xl shadow-lg">
+    <!-- Dropdown to Select Type -->
+    <select
+      (change)="onTypeSelect($event)"
+      class="w-full p-2 border border-gray-300 rounded mb-4 text-white font-semibold"
+    >
+      <option value="">Add new...</option>
+      <option *ngFor="let type of types" [value]="type.value">
+        {{ type.label }}
+      </option>
+    </select>
+
+    <!-- Search Input -->
+    <div *ngIf="selectedType" class="mb-4">
+      <div class="flex items-center gap-2 text-white font-semibold">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          [placeholder]="'Search for ' + selectedType"
+          class="flex-1 p-2 border border-gray-300 rounded"
+        />
+        <button
+          (click)="onSearch()"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results (Grid) -->
+    <div *ngIf="searchResults.length > 0" class="overflow-y-auto max-h-96">
+      <div class="grid grid-cols-4 gap-4">
+
+        <!-- Display only the first 16 albums -->
+        <ng-container *ngIf="selectedType === 'album'">
+          <div
+            *ngFor="let album of searchResults.slice(0, 16)"
+            class="p-2 border rounded shadow-sm text-center"
+          >
+            <!-- Album Cover -->
+            <img
+              [src]="album.image[2]?.['#text'] || 'https://via.placeholder.com/150'"
+              alt="Album Cover"
+              class="w-full h-40 object-cover rounded"
+            />
+
+            <!-- Album Title -->
+            <p class="text-sm font-semibold mt-2 text-white">
+              {{ album.name }}
+            </p>
+
+            <!-- Artist Name -->
+            <p class="text-xs text-gray-500">{{ album.artist }}</p>
+          </div>
+        </ng-container>
+
+        <!-- Display only the first 16 movies -->
+        <ng-container *ngIf="selectedType === 'movie'">
+          <div
+              *ngFor="let movie of searchResults.slice(0, 16)"
+              class="p-2 border rounded shadow-sm text-center"
+          >
+              <!-- Movie Cover -->
+              <img
+                  [src]="movie.poster_path"
+                  alt="{{ movie.title }}"
+                  class="w-full h-40 object-cover rounded"
+              />
+      
+              <!-- Movie Title -->
+              <p class="text-sm font-semibold mt-2 text-white">
+                  {{ movie.title }}
+              </p>
+          </div>
+      </ng-container>
+
+        <!-- Display only the first 16 books -->
+        <ng-container *ngIf="selectedType === 'book'">
+          <div
+            *ngFor="let book of searchResults.slice(0, 16)"
+            class="p-2 border rounded shadow-sm text-center"
+          >
+            <!-- Book Cover -->
+            <img
+              [src]="book.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/150'"
+              alt="Book Cover"
+              class="w-full h-40 object-cover rounded"
+            />
+        
+            <!-- Book Title -->
+            <p class="text-sm font-semibold mt-2 text-white">
+              {{ book.volumeInfo.title }}
+            </p>
+          </div>
+        </ng-container>
+
+        <!-- Display only the first 16 games -->
+        <ng-container *ngIf="selectedType === 'game'">
+          <div
+            *ngFor="let game of searchResults.slice(0, 16)"
+            class="p-2 border rounded shadow-sm text-center"
+          >
+            <!-- game Cover -->
+            <img
+              [src]="game.image.original_url || 'https://via.placeholder.com/150'"
+              alt="Game Cover"
+              class="w-full h-40 object-cover rounded"
+            />
+        
+            <!-- game Title -->
+            <p class="text-sm font-semibold mt-2 text-white">
+              {{ game.names}}
+            </p>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+
+    <!-- Modal Close Button -->
+    <div class="flex justify-end mt-4">
+      <button
+        (click)="close()"
+        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
