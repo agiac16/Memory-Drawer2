@@ -1,4 +1,5 @@
 using System.Text.Json;
+using DnsClient.Protocol;
 using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
@@ -49,4 +50,19 @@ public class MovieController : Controller {
         await _movieRepository.AddMovieToUserAsync(request.UserId, movie);
         return Ok($" `{movie.Title}` added successfully.");
     }
+
+    [HttpGet("{userId}/all")]
+    public async Task<IActionResult> GetAllUserMovies([FromRoute] string userId) {
+        if (string.IsNullOrWhiteSpace(userId)) { 
+            return  BadRequest("User Id is required");
+        }
+        var userMovies = await _movieRepository.GetAllByUserAsync(userId);
+
+        if (userMovies == null || !userMovies.Any()) { 
+            return NotFound(new { message = "No movies found for this user." });
+        }
+
+        return Ok(userMovies); // json list
+    }
+
 }
