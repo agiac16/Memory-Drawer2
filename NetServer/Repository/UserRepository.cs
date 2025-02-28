@@ -1,30 +1,31 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
+using NetServer.Data;
 using NetServer.Models;
 using NetServer.Repositories;
 namespace NetServer.Repository;
 
 public class UserRepository : IUserRepository {
     // import user collection
-    private readonly IMongoCollection<User> _users;  
+    private readonly AppDbContext _dbContext;
 
-    public UserRepository(IMongoClient client) { 
-        var database = client.GetDatabase("mdtwo");
-        _users = database.GetCollection<User>("Users");
+    public UserRepository(AppDbContext dbContext) { 
+        _dbContext = dbContext;
     }
 
     public async Task<User?> GetByIdAsync(string id) { 
         if (string.IsNullOrWhiteSpace(id)){ 
             throw new ArgumentNullException(nameof(id));
         }
-        return await _users.Find(u => u.Id == id).FirstOrDefaultAsync();
+        return await  _dbContext.Users.FindAsync(id);
     }
     
     public async Task<User?> GetByEmailOrUsernameAsync(string email, string username) { 
         if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(username)) {
             throw new ArgumentNullException("Both email and username cannot be null.");
         }
-        return await _users.Find(u => u.Email == email || u.Username == username).FirstOrDefaultAsync();
+        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email || u.Username == username);
     }
 
     public async Task<User?> GetByEmailAsync(string email) { 
@@ -32,7 +33,7 @@ public class UserRepository : IUserRepository {
             throw new ArgumentNullException(nameof(email));
         }
 
-        return await _users.Find(u => u.Email == email ).FirstOrDefaultAsync();
+        return await _dbContext.Users.FindAsync(email);
     }
 
     public async Task CreateAsync(User user) { 
@@ -42,7 +43,8 @@ public class UserRepository : IUserRepository {
         if (string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.Username)) {
             throw new ArgumentException("Email and Username are required.");
         }
-        await _users.InsertOneAsync(user);
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<bool> UpdateAsync(string id, User user) {
@@ -53,9 +55,18 @@ public class UserRepository : IUserRepository {
             throw new ArgumentNullException(nameof(user));
         }
 
-        var result = await _users.ReplaceOneAsync(u => u.Id == id, user);
+        var exisingUser = await _dbContext.Users.FindAsync(id);
+        if (exisingUser == null) { 
+            return false;
+        }
 
-        return result.MatchedCount > 0; // found > 0
+        exisingUser.Username = user.Username;
+        exisingUser.Email = user.Email;
+        exisingUser.Password = user.Password; 
+
+        _dbContext.Users.Update(exisingUser);
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(string id) {
@@ -63,8 +74,13 @@ public class UserRepository : IUserRepository {
             throw new ArgumentNullException(nameof(id));
         }
 
-        var result = await _users.DeleteOneAsync(u => u.Id == id);
-        
-        return result.DeletedCount > 0; // found 
+        var user = await _dbContext.Users.FindAsync(id);
+        if (user == null) { 
+            return false;
+        }
+
+        _dbContext.Users.Remove(user);
+        await _dbContext.SaveChangesAsync();
+        return true;
     }
 }

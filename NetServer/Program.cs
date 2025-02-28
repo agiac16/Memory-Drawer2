@@ -1,31 +1,26 @@
 using NetServer.Abstractions;
-using NetServer.Services;
-using MongoDB.Driver;
 using NetServer.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using NetServer.Repository;
+using NetServer.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// singleton is a single instance used for entire lifetime of app | used by everything in app
-builder.Services.AddSingleton<IMongoClient>(s =>
-{
-var mongoUri = builder.Configuration.GetSection("MongoDB:ConnectionString").Value;
-    if (string.IsNullOrEmpty(mongoUri))
-    {
-        throw new InvalidOperationException("MongoDB connection string is missing.");
-    }
-    return new MongoClient(mongoUri);
-});
-
-builder.Services.AddSingleton<IMovieRepository, MovieRepository>();
+// connect to mysql
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
+// scoped lives for one request
+builder.Services.AddScoped<IMovieRepository, MovieRepository>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<MongoDBService>(); // ensure its registered
-builder.Services.AddSingleton<IUserRepository, UserRepository>(); // register repo
+builder.Services.AddScoped<IUserRepository, UserRepository>(); // register repo
 builder.Services.AddProblemDetails(); // error message structure
 
 // jwt configuration

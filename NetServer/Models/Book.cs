@@ -1,10 +1,25 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace NetServer.Models;
 
 public class Book { 
-    public required string UserId { get; set; }
-    public required string ApiId { get; set; }
-    public required string Title { get; set; }
-    public required string Authors { get; set; }
-    public required string Artwork { get; set; } 
-    public float Rating { get; set; }
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]  // pk
+    public int Id { get; set; }
+    [Required]
+    public string ApiId { get; set; } = string.Empty;
+
+    [Required]
+    public string Title { get; set; } = string.Empty;
+
+    [Required]
+    public string Authors { get; set; } = string.Empty;
+    public string? Artwork { get; set; } 
+    public float? Rating { get; set; }   
+
+    // many to many
+    public List<User> Users { get; set; } = new List<User>();
+    
 }

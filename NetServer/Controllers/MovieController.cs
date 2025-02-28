@@ -20,6 +20,13 @@ public class MovieController : Controller {
 
     [HttpPost("add")]
     public async Task<ActionResult> AddMovieToUser([FromBody] MovieAddRequest request) {  
+
+        // parse
+        if (!int.TryParse(request.UserId, out int userId))
+        {
+            return BadRequest("Invalid User ID format.");
+        }
+
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.MovieId)) {
             return BadRequest("User ID and Movie ID are required.");
         }
@@ -28,7 +35,7 @@ public class MovieController : Controller {
         string url = $"https://api.themoviedb.org/3/movie/{request.MovieId}?api_key={_tmdbApiKey}";
         var res = await _httpClient.GetStringAsync(url);
 
-        if (string.IsNullOrEmpty(url)) {
+        if (string.IsNullOrEmpty(res)) {
             return NotFound("Movie not found in TMDB.");
         }
 
@@ -40,7 +47,6 @@ public class MovieController : Controller {
 
         // json return mapped to Movie model 
         var movie = new Movie { 
-            UserId = request.UserId,
             ApiId = request.MovieId,
             Title = movieDetails["title"]?.ToString() ?? "Unknown Title", 
             PosterPath = movieDetails["poster_path"]?.ToString() ?? "",
@@ -48,7 +54,7 @@ public class MovieController : Controller {
         };
 
         await _movieRepository.AddMovieToUserAsync(request.UserId, movie);
-        return Ok($" `{movie.Title}` added successfully.");
+        return Ok(new { message = $"'{movie.Title}' added successfully." });
     }
 
     [HttpGet("{userId}/all")]

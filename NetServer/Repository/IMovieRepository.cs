@@ -17,6 +17,6 @@ public interface IMovieRepository {
     
     // CUD
     Task AddMovieToUserAsync(string userId, Movie movie);
-    Task UpdateMovieAsync(string userId, Movie movie);
-    Task DeleteMovieAsync(string userId, string movieId);
+    Task<bool> UpdateMovieAsync(string userId, Movie movie);
+    Task<bool> DeleteMovieAsync(string userId, string movieId);
 }

@@ -1,14 +1,13 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NetServer.Models;
 
 public class User
 {
-    [BsonId] // primary key for mongo
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; } = ObjectId.GenerateNewId().ToString(); // generate id 
+    [Key] // primary key ef core
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // auto gens a new id
+    public int Id { get; set; }
 
     [Required]
     public required string Username { get; set; } = string.Empty;
