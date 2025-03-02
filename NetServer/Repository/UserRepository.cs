@@ -35,7 +35,7 @@ public class UserRepository : IUserRepository {
         return await _users.Find(u => u.Email == email ).FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(User user) { 
+    public async Task CreateUserAsync(User user) { 
         if (user == null) { 
             throw new ArgumentNullException(nameof(user));
         }
@@ -45,7 +45,7 @@ public class UserRepository : IUserRepository {
         await _users.InsertOneAsync(user);
     }
 
-    public async Task<bool> UpdateAsync(string id, User user) {
+    public async Task<bool> UpdateUserAsync(string id, User user) {
         if (string.IsNullOrWhiteSpace(id)) {
             throw new ArgumentNullException(nameof(id));
         }
@@ -58,7 +58,7 @@ public class UserRepository : IUserRepository {
         return result.MatchedCount > 0; // found > 0
     }
 
-    public async Task<bool> DeleteAsync(string id) {
+    public async Task<bool> DeleteUserAsync(string id) {
         if (string.IsNullOrWhiteSpace(id)) {
             throw new ArgumentNullException(nameof(id));
         }
