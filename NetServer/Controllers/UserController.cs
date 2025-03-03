@@ -45,7 +45,7 @@ public class UserController: Controller {
         // hashpassword
         user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
-        await _userRepository.CreateAsync(user);
+        await _userRepository.CreateUserAsync(user);
         return Ok("User registered!");
     }
 

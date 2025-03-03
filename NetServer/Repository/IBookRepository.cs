@@ -1,11 +1,11 @@
 using NetServer.Models;
 namespace NetServer.Repositories;
 public interface IBookRepository { 
-    Task<Game?> GetByBookIdAsync(string userId, string bookId);
+    Task<Book?> GetByBookIdAsync(string userId, string bookId);
 
-    Task<Game?> GetByBookNameAsync(string userId, string bookName);    
+    Task<Book?> GetByBookNameAsync(string userId, string bookName);    
     
-    Task<IEnumerable<Game>> GetAllBooksyUserAsync(string userId);
+    Task<IEnumerable<Book>> GetAllBooksyUserAsync(string userId);
 
     Task AddBookAsync(string userId, Book book);
 
