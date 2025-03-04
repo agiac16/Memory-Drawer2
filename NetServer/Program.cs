@@ -21,6 +21,9 @@ var mongoUri = builder.Configuration.GetSection("MongoDB:ConnectionString").Valu
 });
 
 builder.Services.AddSingleton<IMovieRepository, MovieRepository>();
+builder.Services.AddSingleton<IMusicRepository, MusicRepository>();
+builder.Services.AddSingleton<IBookRepository, BookRepository>();
+builder.Services.AddSingleton<IGameRepository, GameRepository>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

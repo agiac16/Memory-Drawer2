@@ -7,7 +7,7 @@ public class GameRepository : IGameRepository {
 
     private readonly IMongoCollection<User> _users;
 
-    public GameRepository(MongoClient client) { 
+    public GameRepository(IMongoClient client) { 
         var database = client.GetDatabase("mdtwo");
         _users = database.GetCollection<User>("Users");
     }

@@ -5,5 +5,5 @@ public class Game {
     public required string ApiId { get; set; }
     public required string Title { get; set; }
     public required string Artwork { get; set; } 
-    public float Rating { get; set; }
+    public float? Rating { get; set; }
 }

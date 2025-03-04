@@ -69,35 +69,22 @@ namespace NetServer.Repositories
 
         public async Task<bool> UpdateMovieAsync(string userId, string movieId, float rating)
         {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(movieId))
-            {
-                throw new ArgumentNullException("User ID and Movie ID are required.");
-            }
+            if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentNullException(nameof(userId));
 
             var user = await _users.Find(u => u.Id == userId).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                throw new InvalidOperationException("User not found.");
-            }
 
-            // find movie to update
             var movieToUpdate = user.Movies?.Find(m => m.ApiId == movieId);
-            if (movieToUpdate == null)
-            {
-                return false; // Movie not found
-            }
+            if (movieToUpdate == null) return false;
 
-            // update only the rating
             var filter = Builders<User>.Filter.And(
-                Builders<User>.Filter.Eq(u => u.Id, userId),
+                Builders<User>.Filter.Eq(u => u.Id, userId), 
                 Builders<User>.Filter.ElemMatch(u => u.Movies, m => m.ApiId == movieId)
-            );
+            ) ; 
 
             var update = Builders<User>.Update.Set("Movies.$.Rating", rating);
-
             var result = await _users.UpdateOneAsync(filter, update);
 
-            return result.ModifiedCount > 0;
+            return result.ModifiedCount > 0; 
         }
 
         public async Task<bool> DeleteMovieAsync(string userId, string movieId)
@@ -134,6 +121,5 @@ namespace NetServer.Repositories
             return result.ModifiedCount > 0; // true if a movie was deleted
 
         }
-
     }
 }

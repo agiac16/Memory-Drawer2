@@ -7,7 +7,7 @@ namespace NetServer.Repositories;
 public class BookRepository : IBookRepository { 
     private readonly IMongoCollection<User> _users;
 
-    public BookRepository(MongoClient client) { 
+    public BookRepository(IMongoClient client) { 
         var database = client.GetDatabase("mdtwo");
         _users = database.GetCollection<User>("Users");
     }
@@ -87,11 +87,11 @@ public class BookRepository : IBookRepository {
         // check if user and game exist
         var filter = Builders<User>.Filter.And(
             GetUserFilter(userId), 
-            Builders<User>.Filter.ElemMatch(u => u.Games, b => b.ApiId == bookId)
+            Builders<User>.Filter.ElemMatch(u => u.Books, b => b.ApiId == bookId)
         );
 
         // search and delete
-        var update = Builders<User>.Update.PullFilter(u => u.Games, b => b.ApiId == bookId);
+        var update = Builders<User>.Update.PullFilter(u => u.Books, b => b.ApiId == bookId);
         var result = await _users.UpdateOneAsync(filter, update);
 
         return result.ModifiedCount > 0; 

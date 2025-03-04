@@ -6,5 +6,5 @@ public class Book {
     public required string Title { get; set; }
     public required string Authors { get; set; }
     public required string Artwork { get; set; } 
-    public float Rating { get; set; }
+    public float? Rating { get; set; }
 }

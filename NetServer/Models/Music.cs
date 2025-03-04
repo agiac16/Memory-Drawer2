@@ -5,6 +5,6 @@ public class Music {
     public required string ApiId { get; set; }
     public required string Title { get; set; }
     public required string Artist { get; set; }  
-    public required string Artwork { get; set; } 
-    public float Rating { get; set; }
+    public string? Artwork { get; set; } 
+    public float? Rating { get; set; }
 }

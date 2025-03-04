@@ -75,7 +75,7 @@ namespace NetServer.Repositories
                 Builders<User>.Filter.ElemMatch(u => u.Music, m => m.ApiId == musicId)
             );
             var update = Builders<User>.Update.Set("Music.$.Rating", rating);
-            var result = await _users.UpdateOneAsync(u => u.Id == userId, update); 
+            var result = await _users.UpdateOneAsync(filter, update);
 
             return result.ModifiedCount > 0;
         }
