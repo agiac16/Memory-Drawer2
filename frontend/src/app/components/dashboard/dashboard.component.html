@@ -1,169 +1,85 @@
-<div class="min-h-screen flex">
- <!-- Add button, middle of screen and sticky to bottom -->
-  <button class="rounded-full bg-blue-400 p-5 flex justify-center items-center fixed bottom-4 left-1/2 hover:translate-y-[-10px] transform -translate-x-1/2 transition-all duration-300" 
-  (click)="openModal()">
+<div class="min-h-screen flex flex-col items-center bg-black text-white">
+  <!-- Add button - stays at the bottom -->
+  <button 
+    class="rounded-full bg-blue-400 p-5 flex justify-center items-center fixed bottom-4 left-1/2 hover:translate-y-[-10px] transform -translate-x-1/2 transition-all duration-300"
+    (click)="openModal()"
+  >
     + Add new item
-   </button>
+  </button>
 
-  <!-- Sidebar -->
-  <aside class="w-72 bg-gray-900 text-white flex flex-col p-4">
-    <h2 class="text-2xl font-bold mb-6">MemoryDrawer</h2>
+  <!-- Header -->
+  <h1 class="text-3xl font-bold text-center mt-8">Memory Drawer</h1>
+  <p class="text-gray-400 text-center mb-6">Your personal media tracker</p>
 
-    <!-- Search -->
-    <div class="mb-6">
-      <input
-        type="text"
-        placeholder="Search All My Stuff"
-        class="w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400"
-      />
-    </div>
-
-    <!-- Navigation Items -->
-    <nav class="flex-1">
-      <ul class="space-y-4">
-        <li class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700">
-          The Pile
-        </li>
-        <li class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700">
-          Logbook
-        </li>
-        <li
-          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
-          (click)="setActiveList('books')"
-        >
-          <img
-            *ngIf="firstBookImageUrl"
-            [src]="firstBookImageUrl"
-            alt="First Book"
-            class="nav-image ml-2"
-          />
-          <span class="ml-3">Books to Read</span>
-        </li>
-        <li
-          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
-          (click)="setActiveList('games')"
-        >
-          <img
-            *ngIf="firstGameImageUrl"
-            [src]="firstGameImageUrl"
-            alt="First Game"
-            class="nav-image ml-2"
-          />
-          <span class="ml-3">Games to Play</span>
-        </li>
-        <li
-          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
-          (click)="setActiveList('links')"
-        >
-          <img
-            [src]=""
-            alt="Default Link"
-            class="nav-image ml-2"
-          />
-          <span class="ml-3">Saved Links</span>
-        </li>
-        <li
-          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
-          (click)="setActiveList('movies')"
-        >
-          <img
-            *ngIf="firstMovieImageUrl"
-            [src]="firstMovieImageUrl"
-            alt="First Movie"
-            class="nav-image ml-2"
-          />
-          <span class="ml-3">Movies & Shows to Watch</span>
-        </li>
-        <li
-          class="bg-gray-800 p-2 rounded-md cursor-pointer hover:bg-gray-700 flex items-center"
-          (click)="setActiveList('albums')"
-        >
-          <img
-            *ngIf="firstAlbumImageUrl"
-            [src]="firstAlbumImageUrl"
-            alt="First Album"
-            class="nav-image ml-2"
-          />
-          <span class="ml-3">Albums to Listen to</span>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Logout Button -->
-    <button
-      class="mt-6 bg-red-500 p-2 rounded-md hover:bg-red-600"
-      (click)="logout()"
+  <!-- Category Preview Row -->
+  <div class="flex justify-center items-center space-x-4 overflow-x-auto w-full px-4">
+    <div 
+      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+      *ngIf="firstMovieImageUrl" 
+      (click)="setActiveList('movies')"
     >
-      Logout
-    </button>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 bg-gray-950 text-white p-6">
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold">The Pile</h1>
-      <p class="text-gray-400">
-        A quick place to save things you're not ready to organize.
-      </p>
+      <img [src]="firstMovieImageUrl" class="w-full h-full object-cover" />
     </div>
 
-    <!-- Content Area -->
-    <!-- Movies -->
-    <div *ngIf="showMoviesList" class="grid grid-cols-5 space-x-2.5">
-      <div *ngFor="let movie of movies" class="">
-        <img
-          [src]="
-            movie.poster_path
-              ? getPosterUrl(movie.poster_path)
-              : 'https://via.placeholder.com/150'
-          "
-          alt="{{ movie.title }}"
-          class="standard-image"
-        />
-        <h3 class="mt-2 text-sm font-light">{{ movie.title }}</h3>
+    <div *ngIf="showBooksList">
+      <pre class="text-white">{{ books | json }}</pre> <!-- Displays data as JSON -->
+    </div>
+
+    <div 
+      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+      *ngIf="firstBookImageUrl" 
+      (click)="setActiveList('books')"
+    >
+      <img [src]="firstBookImageUrl" class="w-full h-full object-cover" />
+    </div>
+
+    <div 
+      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+      *ngIf="firstAlbumImageUrl" 
+      (click)="setActiveList('albums')"
+    >
+      <img [src]="firstAlbumImageUrl" class="w-full h-full object-cover" />
+    </div>
+
+    <div 
+      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+      *ngIf="firstGameImageUrl" 
+      (click)="setActiveList('games')"
+    >
+      <img [src]="firstGameImageUrl" class="w-full h-full object-cover" />
+    </div>
+  </div>
+
+  <!-- Selected List View -->
+  <div class="mt-6 w-full px-6">
+    <div *ngIf="showMoviesList" class="grid grid-cols-5 gap-4">
+      <div *ngFor="let movie of movies">
+        <img [src]="getPosterUrl(movie.posterPath)" class="w-full h-40 object-cover rounded" />
+        <p class="mt-2 text-sm font-light">{{ movie.title }}</p>
       </div>
     </div>
 
-    <!-- Books -->
-    <div *ngIf="showBooksList" class="grid grid-cols-5 space-x-2.5">
-      <div *ngFor="let book of books" class="">
-        <img [src]="book.cover" alt="{{ book.title }}" class="standard-image" />
-        <h3 class="mt-2 text-sm font-light">{{ book.title }}</h3>
+    <div *ngIf="showBooksList" class="grid grid-cols-5 gap-4">
+      <div *ngFor="let book of books">
+        <img [src]="book.artwork || 'https://via.placeholder.com/150'" class="w-full h-40 object-cover rounded" />
+        <p class="mt-2 text-sm font-light">{{ book.title }}</p>
+        <p class="text-xs text-gray-400">{{ book.authors }}</p>
       </div>
     </div>
 
-    <!-- Albums -->
-    <div *ngIf="showAlbumsList" class="grid grid-cols-5 space-x-2.5">
-      <div *ngFor="let album of albums" class="">
-        <img
-          [src]="album.artwork"
-          alt="{{ album.title }}"
-          class="standard-image"
-        />
-        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ album.title }}</h3>
-        <h3 class="mt-2 text-xs font-light text-gray-400">
-          {{ album.artist }}
-        </h3>
+    <div *ngIf="showAlbumsList" class="grid grid-cols-5 gap-4">
+      <div *ngFor="let album of albums">
+        <img [src]="album.artwork" class="w-full h-40 object-cover rounded" />
+        <p class="mt-2 text-sm font-semibold">{{ album.title }}</p>
+        <p class="text-xs text-gray-400">{{ album.artist }}</p>
       </div>
     </div>
 
-    <!-- Links -->
-    <div *ngIf="showLinksList" class="grid grid-cols-5 space-x-2.5">
-      <div *ngFor="let link of links" class="">
-        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ link.title }}</h3>
-        <h3 class="mt-2 text-xs font-light text-gray-400">
-          {{ link.title }}
-        </h3>
+    <div *ngIf="showGamesList" class="grid grid-cols-5 gap-4">
+      <div *ngFor="let game of games">
+        <img [src]="game.cover" class="w-full h-40 object-cover rounded" />
+        <p class="mt-2 text-sm font-semibold">{{ game.title }}</p>
       </div>
     </div>
-
-    <!-- Games -->
-    <div *ngIf="showGamesList" class="grid grid-cols-5 space-x-2.5">
-      <div *ngFor="let game of games" class="">
-        <img [src]="game.cover" alt="{{ game.title }}" class="standard-image" />
-        <h3 class="mt-2 text-sm font-semibold -mb-2">{{ game.title }}</h3>
-      </div>
-    </div>
-  </main>
+  </div>
 </div>

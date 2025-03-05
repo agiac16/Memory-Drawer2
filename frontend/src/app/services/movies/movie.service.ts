@@ -13,18 +13,25 @@ export class MovieService {
 
   constructor(private http: HttpClient) {}
 
-  getUserMovies(userId: string): Observable<{ success: boolean; data: Movie[] }> {
-    return this.http.get<{ success: boolean; data: Movie[] }>(`${this.apiUrl}/all`, { params: { userId } });
-  }
+  getUserMovies(
+      userId: string
+    ): Observable<{ success: boolean; data: Movie[] }> {
+      return this.http.get<{ success: boolean; data: Movie[] }>(
+        `${this.apiUrl}/${userId}/all`
+      );
+    }
 
-  getPosterUrl(posterPath: string): string {
-    const baseUrl = 'https://image.tmdb.org/t/p/w500';
-    return posterPath ? `${baseUrl}${posterPath}` : 'https://via.placeholder.com/150';
-  }
+    getPosterUrl(posterPath: string): string {
+      if (!posterPath) return 'https://via.placeholder.com/150';
+      return posterPath.startsWith('/')
+        ? `https://image.tmdb.org/t/p/w200${posterPath}`
+        : posterPath; // If full URL is provided, use it directly
+    }
 
   searchMovie(searchQuery: string): Observable<any[]> {
+    const apiUrl = `http://localhost:5000/api/movies/search`;
     // handled in backend
-    return this.http.get<any>('http:localhost:5000/api/movies/search', {
+    return this.http.get<any>(apiUrl, {
         params: { title : searchQuery}, 
         withCredentials: true
     }).pipe(
@@ -53,7 +60,7 @@ export class MovieService {
             next: (response) => {
                 const movies = response?.data;  
                 if (movies && movies.length > 0) {
-                    const posterUrl = this.getPosterUrl(movies[0].poster_path);
+                    const posterUrl = this.getPosterUrl(movies[0].posterPath);
                     observer.next(posterUrl);
                 } else {
                     observer.next(null);

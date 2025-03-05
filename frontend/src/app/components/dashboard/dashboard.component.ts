@@ -1,58 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-
-import { Movie } from '../../models/movie.model';
-import { Book } from '../../models/book.model';
-import { Album } from '../../models/album.model';
-import { Link } from '../../models/link.model';
-import { Game } from '../../models/game.model';
-
+import { MovieService } from '../../services/movies/movie.service';
 import { BookService } from '../../services/books/book.service';
 import { AlbumsService } from '../../services/albums/albums.service';
-import { LinkService } from '../../services/links/link.service';
 import { GameService } from '../../services/games/game.service';
-import { MovieService } from '../../services/movies/movie.service';
 import { AddModalService } from '../../services/addItemModal/add-modal.service';
-
+import { Album } from '../../models/album.model';
+import { Movie } from '../../models/movie.model';
+import { Game } from '../../models/game.model';
+import { Book } from '../../models/book.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
   standalone: true,
+  imports: [CommonModule], 
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-
 export class DashboardComponent implements OnInit {
-  isLoggedIn: boolean = true;
-  // movies
   movies: Movie[] = [];
   albums: Album[] = [];
   books: Book[] = [];
-  links: Link[] = [];
   games: Game[] = [];
-  userId: string = '';
+  userId = '';
+
   firstBookImageUrl: string | null = null;
   firstMovieImageUrl: string | null = null;
   firstAlbumImageUrl: string | null = null;
   firstGameImageUrl: string | null = null;
-  showMoviesList: boolean = false;
-  showBooksList: boolean = false;
-  showAlbumsList: boolean = false;
-  showGamesList: boolean = false;
-  showLinksList: boolean = false;
+
+  showMoviesList = false;
+  showBooksList = false;
+  showAlbumsList = false;
+  showGamesList = false;
 
   constructor(
     private movieService: MovieService,
-    private albumService: AlbumsService,
     private bookService: BookService,
-    private linkService: LinkService,
+    private albumService: AlbumsService,
     private gameService: GameService,
-    private addModalService: AddModalService,
-    private http: HttpClient,
-    private router: Router,
+    private addModalService: AddModalService
   ) {}
 
   ngOnInit(): void {
@@ -62,131 +49,84 @@ export class DashboardComponent implements OnInit {
       this.loadMovies();
       this.loadAlbums();
       this.loadBooks();
-      this.loadLinks();
       this.loadGames();
-      this.loadFirstGameImage();
-      this.loadFirstBookImage();
-      this.loadFirstMovieImage();
-      this.loadFirstAlbumImage();
     } else {
       console.error('User ID not found.');
     }
-}
+  }
 
   openModal(): void {
     this.addModalService.open();
   }
 
-  loadFirstBookImage(): void {
-    this.bookService.getFirstBookImageUrl(this.userId).subscribe((imageUrl) => {
-      this.firstBookImageUrl = imageUrl;
+  loadMovies(): void {
+    if (!this.userId) return;
+    this.movieService.getUserMovies(this.userId).subscribe({
+      next: (response) => {
+        console.log("🎬 Movie API Response:", response);
+        
+        if (!Array.isArray(response)) {
+          console.error("🚨 Expected an array but got:", response);
+          return;
+        }
+  
+        this.movies = response; // ✅ Assigning data correctly
+        if (this.movies.length > 0) {
+          this.firstMovieImageUrl = this.getPosterUrl(this.movies[0].posterPath);
+        } else {
+          this.firstMovieImageUrl = null;
+        }
+      },
+      error: (err) => {
+        console.error("🚨 Error fetching movies:", err);
+      },
     });
-  }
-
-  loadFirstMovieImage(): void {
-   this.movieService.getFirstMovieImageUrl(this.userId).subscribe((imageUrl) => {
-    this.firstMovieImageUrl = imageUrl;
-   });
-  }
-
-  loadFirstAlbumImage(): void {
-    this.albumService
-      .getFirstAlbumImageUrl(this.userId)
-      .subscribe((imageUrl) => {
-        console.log('First album image URL:', imageUrl); // Debugging log
-        this.firstAlbumImageUrl = imageUrl;
-      });
-  }
-
-  loadFirstGameImage(): void {
-    this.gameService
-      .getFirstGameImageUrl(this.userId)
-      .subscribe((imageUrl) => {
-        console.log('First game image URL:', imageUrl); // Debugging log
-        this.firstGameImageUrl = imageUrl;
-      });
   }
 
   loadBooks(): void {
+    if (!this.userId) return;
     this.bookService.getUserBooks(this.userId).subscribe({
       next: (response) => {
-        this.books = response.data;
+        console.log("Books API Response:", response);
+        this.books = response?.data ?? [];
+        this.firstBookImageUrl = this.books.length ? this.books[0].artwork : null;
       },
       error: (err) => {
-        console.error('Error fetching books:', err);
+        console.error('🚨 Error fetching books:', err);
       },
     });
-  }
+}
 
   loadAlbums(): void {
-    this.albumService.getUserAlbums(this.userId).subscribe({
-      next: (response) => {
-        this.albums = response.data;
-      },
-      error: (err) => {
-        console.error('Error fetching albums:', err);
-      },
-    });
-  }
-
-  loadMovies(): void {
-    this.movieService.getUserMovies(this.userId).subscribe({
-      next: (response) => {
-        this.movies = response?.data ?? [];
-      },
-      error: (err) => {
-        console.error('Error fetching movies:', err);
-      },
+    if (!this.userId) return;
+    this.albumService.getUserAlbums(this.userId).subscribe((response) => {
+      console.log("Album API Response:", response);
+      this.albums = response?.data ?? [];
+      this.firstAlbumImageUrl = this.albums.length
+        ? this.albums[0].artwork
+        : null;
     });
   }
 
   loadGames(): void {
-    this.gameService.getUserGames(this.userId).subscribe({
-      next: (response) => {
-        this.games = response.data;
-      },
-      error: (err) => {
-        console.error('Error fetching movies:', err);
-      },
-    });
-  }
-
-
-  loadLinks(): void {
-    this.linkService.getUserLinks(this.userId).subscribe({
-      next: (response) => {
-        this.links = response.data;
-      },
-      error: (err) => {
-        console.error('Error fetching links:', err);
-      },
+    if (!this.userId) return;
+    this.gameService.getUserGames(this.userId).subscribe((response) => {
+      console.log("game API Response:", response);
+      this.games = response?.data ?? [];
+      this.firstGameImageUrl = this.games.length ? this.games[0].cover : null;
     });
   }
 
   setActiveList(listType: string): void {
     this.showMoviesList = listType === 'movies';
-    this.showAlbumsList = listType === 'albums';
     this.showBooksList = listType === 'books';
-    this.showLinksList = listType === 'links';
+    this.showAlbumsList = listType === 'albums';
     this.showGamesList = listType === 'games';
   }
 
-  checkLoginStatus() {
-    this.isLoggedIn = !!localStorage.getItem('token');
-  }
-
-  // get movie poster
   getPosterUrl(posterPath: string): string {
-    return this.movieService.getPosterUrl(posterPath);
-  }
-
-  logout() {
-    localStorage.removeItem('token');
-    this.checkLoginStatus();
-    this.router.navigate(['']);
-
-    setTimeout(() => {
-      this.checkLoginStatus();
-    }, 0);
+    return posterPath
+      ? `https://image.tmdb.org/t/p/w200${posterPath}`
+      : 'https://via.placeholder.com/150';
   }
 }

@@ -17,10 +17,7 @@ export class BookService {
 
   getUserBooks(userId: string): Observable<{ success: boolean; data: Book[] }> {
     return this.http.get<{ success: boolean; data: Book[] }>(
-      `${this.apiUrl}/all`,
-      {
-        params: { userId },
-      }
+      `${this.apiUrl}/${userId}/all`
     );
   }
 
@@ -62,7 +59,7 @@ export class BookService {
       this.getUserBooks(userId).subscribe((response) => {
         const books = response.data;
         if (books.length > 0) {
-          observer.next(books[0].cover);
+          observer.next(books[0].artwork);
         } else {
           observer.next(null);
         }

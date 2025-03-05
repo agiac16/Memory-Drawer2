@@ -3,6 +3,6 @@ export interface Book {
     title: string,
     authors: [string],
     rating: number,
-    cover: string,
+    artwork: string,
     finished: boolean
   }

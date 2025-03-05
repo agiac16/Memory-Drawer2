@@ -3,5 +3,5 @@ export interface Movie {
     title: string;
     apId: string;
     rating?: number | null; 
-    poster_path: string;
+    posterPath: string;
   }

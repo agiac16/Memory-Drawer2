@@ -6,7 +6,6 @@ import { MovieService } from '../../services/movies/movie.service';
 import { BookService } from '../../services/books/book.service';
 import { AlbumsService } from '../../services/albums/albums.service';
 import { GameService } from '../../services/games/game.service';
-import { LinkService } from '../../services/links/link.service';
 
 @Component({
   selector: 'app-add-modal',
@@ -21,12 +20,20 @@ export class AddModalComponent {
   searchQuery: string = '';
   searchResults: any[] = [];
 
+  // activeCategory: any = null;
+  // categories = [
+  //   { type: 'books', label: 'Books to Read', items: this.books, firstItem: null },
+  //   { type: 'movies', label: 'Movies & Shows', items: this.movies, firstItem: null },
+  //   { type: 'albums', label: 'Albums to Listen', items: this.albums, firstItem: null },
+  //   { type: 'games', label: 'Games to Play', items: this.games, firstItem: null },
+  //   { type: 'links', label: 'Saved Links', items: this.links, firstItem: null },
+  // ];
+
   types = [
     { value: 'movie', label: 'Movie' },
     { value: 'book', label: 'Book' },
     { value: 'album', label: 'Album' },
     { value: 'game', label: 'Game' },
-    { value: 'link', label: 'Link' }
   ];
 
   constructor(
@@ -36,6 +43,35 @@ export class AddModalComponent {
     private gameService: GameService,
     private modalService: AddModalService,
   ) { }
+
+  ngOnInit() {
+    // this.updateFirstItems();
+  }
+
+  // updateFirstItems() {
+  //   this.categories.forEach((category) => {
+  //     category.firstItem = category.items.length ? category.items[0] : null;
+  //   });
+  // }
+
+  // setActiveList(type: string) {
+  //   this.activeCategory = this.categories.find((c) => c.type === type);
+  // }
+
+
+  getAlbumImage(album: any): string {
+    if (!album.image || album.image.length === 0) {
+      return 'https://via.placeholder.com/150';
+    }
+  
+    // ✅ Get the largest available image (Extralarge > Large > Medium > Small)
+    const preferredSizes = ['extralarge', 'large', 'medium', 'small'];
+    const foundImage = album.image.find((img: any) =>
+      preferredSizes.includes(img.size.toLowerCase())
+    );
+  
+    return foundImage?.['#text'] ?? 'https://via.placeholder.com/150';
+  }
 
   onSearch() { 
     if (!this.searchQuery.trim()) return; // leading spaces
