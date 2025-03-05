@@ -8,7 +8,7 @@ import { catchError, map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class MovieService {
-  private apiUrl = 'http://localhost:5050/api/movies'; 
+  private apiUrl = 'http://localhost:5000/api/movies'; 
   private movieApiUrl = 'https://api.themoviedb.org/3/search';
 
   constructor(private http: HttpClient) {}
@@ -23,24 +23,28 @@ export class MovieService {
   }
 
   searchMovie(searchQuery: string): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:5050/api/movies/search`, {
-        params: { movieName: searchQuery },
+    // handled in backend
+    return this.http.get<any>('http:localhost:5000/api/movies/search', {
+        params: { title : searchQuery}, 
         withCredentials: true
     }).pipe(
-        map((response: any[]) => {
-            console.log("🟢 Corrected API Response:", response);
-            return response.map(movie => ({
-                title: movie.title ?? 'Untitled',
-                poster_path: movie.poster_path 
+        map((response: any) => { 
+            console.log("api res", response);
+
+            if (!response.results) return [];
+
+            return response.results.map((movie: any) => ({
+                title: movie.title ?? "Untitled",
+                poster_path: movie.poster_path
                     ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` 
                     : 'https://via.placeholder.com/150',
             }));
         }),
         catchError(error => {
-            console.error("❌ Error searching movies:", error);
+            console.error("error searching movies", error);
             return [];
         })
-    );
+    )
   }
 
   getFirstMovieImageUrl(userId: string): Observable<string | null> {

@@ -10,18 +10,29 @@ using ZstdSharp.Unsafe;
 [Route("api/games")]
 public class GameController : Controller
 {
+    private readonly SearchService _searchService;
     private readonly IGameRepository _gameRepository;
     private readonly HttpClient _httpClient;
     private readonly string _gameApiKey;
 
-    public GameController(IGameRepository gameRepository, IConfiguration configuration)
+    public GameController(IGameRepository gameRepository, IConfiguration configuration, SearchService searchService)
     {
         _gameRepository = gameRepository;
+        _searchService = searchService; 
         _httpClient = new HttpClient();
         _gameApiKey = configuration["GiantBomb:ApiKey"]
-                        ?? throw new ArgumentNullException("Invalid API key (TMDB)");
+                        ?? throw new ArgumentNullException("Invopk alid API key (TMDB)");
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchGames([FromQuery] string title) { 
+        if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
+
+        var res = await _searchService.SearchGamesAsync(title); 
+        if (res == null) return NotFound("No games matching search");
+
+        return Ok(res);
+    }
 
     [HttpPost("add")]
     public async Task<ActionResult> AddGameToUser([FromBody] ItemAddRequest request)

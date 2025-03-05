@@ -11,16 +11,29 @@ using ZstdSharp.Unsafe;
 [Route("api/music")]
 public class MusicController : Controller
 {
+    private readonly SearchService _searchService;
     private readonly IMusicRepository _musicRepository;
     private readonly HttpClient _httpClient;
     private readonly string _musicApiKey;
 
-    public MusicController(IMusicRepository musicRepository, IConfiguration configuration)
+    public MusicController(IMusicRepository musicRepository, IConfiguration configuration, SearchService searchService)
     {
         _musicRepository = musicRepository;
+        _searchService = searchService;
         _httpClient = new HttpClient();
         _musicApiKey = configuration["LastFM:ApiKey"]
                         ?? throw new ArgumentNullException("Invalid API key (LastFm)");
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchMusic([FromQuery] string title) { 
+        if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
+
+        var res = await _searchService.SearchMusicAsync(title);
+
+        if (res == null) return NotFound("No music matching search");
+
+        return Ok(res);
     }
 
     [HttpPost("add")]

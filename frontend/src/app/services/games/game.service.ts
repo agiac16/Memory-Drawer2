@@ -7,8 +7,8 @@ import { Game } from '../../models/game.model';
   providedIn: 'root'
 })
 export class GameService {
-  private apiUrl = 'http://localhost:5050/api/games'; 
-  private searchUrl = "http://localhost:5050/api/games/search"
+  private apiUrl = 'http://localhost:5000/api/games'; 
+  private searchUrl = "http://localhost:5000/api/games/search"
 
   constructor(private http: HttpClient) { }
 

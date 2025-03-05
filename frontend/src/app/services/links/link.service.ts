@@ -7,7 +7,7 @@ import { Link } from '../../models/link.model';
   providedIn: 'root'
 })
 export class LinkService {
-  private apiUrl = 'http://localhost:5050/api/link'; 
+  private apiUrl = 'http://localhost:5000/api/link'; 
 
   constructor(private http: HttpClient) { }
 

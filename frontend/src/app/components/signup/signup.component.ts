@@ -17,7 +17,7 @@ export class SignupComponent {
   email: string = '';
   password: string = '';
   errorMessage: string = ''; // Store error message
-  apiUrl = 'http://localhost:5050/api/user/signup';
+  apiUrl = 'http://localhost:5000/api/user/signup';
 
   constructor(private http: HttpClient, private router: Router) {} // Inject Router
 

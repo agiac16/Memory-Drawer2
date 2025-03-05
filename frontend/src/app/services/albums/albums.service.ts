@@ -8,7 +8,7 @@ import { Album } from '../../models/album.model';
   providedIn: 'root'
 })
 export class AlbumsService {
-  private apiUrl = 'http://localhost:5050/api/music'; 
+  private apiUrl = 'http://localhost:5000/api/music'; 
   private lastFmApiUrl = 'http://ws.audioscrobbler.com/2.0/'
   
   constructor(private http: HttpClient) {}

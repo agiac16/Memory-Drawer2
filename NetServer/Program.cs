@@ -9,6 +9,17 @@ using NetServer.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// cors policy to accept from frontend
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAngularApp",
+    policy => {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 // singleton is a single instance used for entire lifetime of app | used by everything in app
 builder.Services.AddSingleton<IMongoClient>(s =>
 {
@@ -20,6 +31,8 @@ var mongoUri = builder.Configuration.GetSection("MongoDB:ConnectionString").Valu
     return new MongoClient(mongoUri);
 });
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SearchService>(); // scoped bcs it changes each time a user calls it
 builder.Services.AddSingleton<IMovieRepository, MovieRepository>();
 builder.Services.AddSingleton<IMusicRepository, MusicRepository>();
 builder.Services.AddSingleton<IBookRepository, BookRepository>();
@@ -58,7 +71,7 @@ if (app.Environment.IsDevelopment())
 
 // different controllers for each api
 app.MapControllers();
-
+app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
 
 app.Run();

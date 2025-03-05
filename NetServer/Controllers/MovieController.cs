@@ -11,16 +11,28 @@ using ZstdSharp.Unsafe;
 [Route("api/movies")]
 public class MovieController : Controller
 {
+    private readonly SearchService _searchService;
     private readonly IMovieRepository _movieRepository;
     private readonly HttpClient _httpClient;
     private readonly string _tmdbApiKey;
 
-    public MovieController(IMovieRepository movieRepository, IConfiguration configuration)
+    public MovieController(IMovieRepository movieRepository, IConfiguration configuration, SearchService searchService)
     {
         _movieRepository = movieRepository;
+        _searchService = searchService; 
         _httpClient = new HttpClient();
         _tmdbApiKey = configuration["TMDB:ApiKey"]
                         ?? throw new ArgumentNullException("Invalid API key (TMDB)");
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchMovies([FromQuery] string title) { 
+        if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
+
+        var res = await _searchService.SearchMoviesAsync(title); 
+        if (res == null) return NotFound("No music matching search");
+
+        return Ok(res);
     }
 
     [HttpPost("add")]

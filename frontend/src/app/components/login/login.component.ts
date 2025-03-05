@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   username: string = '';
   password: string = '';
-  apiUrl = 'http://localhost:5050/api/users/login';
+  apiUrl = 'http://localhost:5000/api/users/login';
   errorMessage :string = ""
 
 

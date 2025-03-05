@@ -10,16 +10,28 @@ using ZstdSharp.Unsafe;
 [Route("api/books")]
 public class BookController : Controller
 {
+    private readonly SearchService _searchService;
     private readonly IBookRepository _bookRepository;
     private readonly HttpClient _httpClient;
     private readonly string _bookApiKey;
 
-    public BookController(IBookRepository bookRepository, IConfiguration configuration)
+    public BookController(IBookRepository bookRepository, IConfiguration configuration, SearchService searchService)
     {
         _bookRepository = bookRepository;
+        _searchService = searchService;
         _httpClient = new HttpClient();
         _bookApiKey = configuration["Google:ApiKey"]
                         ?? throw new ArgumentNullException("Invalid API key (Google Books)");
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchBooks([FromQuery] string title) { 
+        if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
+
+        var res = await _searchService.SearchBooksAsync(title); 
+        if (res == null) return NotFound("No books matching search");
+
+        return Ok(res);
     }
 
     [HttpPost("add")]
