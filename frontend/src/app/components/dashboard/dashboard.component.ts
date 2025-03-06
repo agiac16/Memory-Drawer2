@@ -46,13 +46,13 @@ export class DashboardComponent implements OnInit {
     this.userId = localStorage.getItem('userId') || '';
 
     if (this.userId) {
-      console.log('📌 Fetching books...');
+      console.log('Fetching books...');
       this.loadBooks();
       this.loadAlbums();
       this.loadGames();
       this.loadMovies();
     } else {
-      console.error('🚨 User ID not found.');
+      console.error('User ID not found.');
     }
   }
 
@@ -65,15 +65,15 @@ export class DashboardComponent implements OnInit {
     this.movieService.getUserMovies(this.userId).subscribe({
       next: (response) => {
         if (!Array.isArray(response)) {
-          console.error("🚨 Unexpected Movies API response structure", response);
+          console.error("Unexpected Movies API response structure", response);
           return;
         }
-        this.movies = response; // ✅ Ensure this is correct
+        this.movies = response;
         console.log("🎬 Processed Movies:", this.movies);
         this.firstMovieImageUrl = this.movies.length ? this.movies[0].posterPath : null;
       },
       error: (err) => {
-        console.error("🚨 Error fetching movies:", err);
+        console.error("Error fetching movies:", err);
       },
     });
   }

@@ -76,7 +76,7 @@ public class UserController : Controller
 
         return Ok(new
         {
-            success = true,  // ✅ Ensure success flag is included
+            success = true,  
             message = "Login Successful",
             userId = user.Id,
             username = user.Username,

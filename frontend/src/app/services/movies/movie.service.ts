@@ -36,12 +36,12 @@ export class MovieService {
           withCredentials: true
       }).pipe(
           map((response: any) => { 
-              console.log("📌 API Response:", response);
+              console.log("API Response:", response);
   
               if (!response.results) return [];
   
               return response.results.map((movie: any) => ({
-                  id: movie.id, // ✅ Ensure movie ID is included
+                  id: movie.id, 
                   title: movie.title ?? "Untitled",
                   poster_path: movie.poster_path
                       ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` 
@@ -49,7 +49,7 @@ export class MovieService {
               }));
           }),
           catchError(error => {
-              console.error("🚨 Error searching movies:", error);
+              console.error("Error searching movies:", error);
               return [];
           })
       );

@@ -13,11 +13,11 @@ export class HomeComponent implements OnInit {
   isLoggedIn: boolean = false;
 
   ngOnInit(): void {
-    this.checkLoginStatus(); // ✅ Ensures isLoggedIn is updated on component load
+    this.checkLoginStatus(); 
   }
 
   checkLoginStatus() {
-    this.isLoggedIn = !!localStorage.getItem('token'); // ✅ Convert to boolean
+    this.isLoggedIn = !!localStorage.getItem('token'); 
   }
 
   login() {

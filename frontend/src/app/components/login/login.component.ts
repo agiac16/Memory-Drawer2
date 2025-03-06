@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  username: string = ''; // ✅ Add missing property
-  password: string = ''; // ✅ Add missing property
+  username: string = ''; 
+  password: string = ''; 
   apiUrl = 'http://localhost:5000/api/user/login';
   errorMessage: string = '';
 

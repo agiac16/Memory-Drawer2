@@ -33,7 +33,7 @@ export class BookService {
         map((response: any) => {
           console.log('API Response:', response);
 
-          // ✅ Ensure `items` exist before mapping
+         
           if (!response.items || response.items.length === 0) {
             console.warn('No books found');
             return [];

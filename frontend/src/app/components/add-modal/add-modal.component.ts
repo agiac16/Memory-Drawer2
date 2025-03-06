@@ -95,22 +95,26 @@ export class AddModalComponent {
 
   addItemToList(item: any) {
     if (!this.userId) {
-      console.error("🚨 User ID not found.");
+      console.error("User ID not found.");
       return;
     }
-    console.log("📌 Selected Type:", this.selectedType); // Debug Log
+    const apiUrl = ""
 
-    const apiUrl = `http://localhost:5000/api/${this.selectedType}s/add`;
+    if (this.selectedType !== "music") { 
+      const apiUrl = `http://localhost:5000/api/${this.selectedType}s/add`;
+    } else { 
+      // handle music bcs no (s) 
+      const apiUrl = `http://localhost:5000/api/${this.selectedType}/add`;
+    }
+    
   
     const requestBody = {
       userId: this.userId,
-      itemId: String(item.id) // ✅ Ensure itemId is a string
+      itemId: String(item.id)
     };
-  
-    console.log("📌 Request Body:", requestBody);
-  
+    
     if (!requestBody.itemId) {
-      console.error("🚨 itemId is missing from the request!", item);
+      console.error("itemId is missing from the request!", item);
       return;
     }
   
@@ -120,7 +124,7 @@ export class AddModalComponent {
         setTimeout(() => (this.successMessage = ''), 3000);
       },
       error: (err) => {
-        console.error(`🚨 Error adding ${this.selectedType}:`, err);
+        console.error(`Error adding ${this.selectedType}:`, err);
       },
     });
   }
