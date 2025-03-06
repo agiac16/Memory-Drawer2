@@ -1,6 +1,6 @@
 namespace NetServer.Models;
 
-public class Music { 
+public class Music : IMediaItem { 
     public required string UserId { get; set; }
     public required string ApiId { get; set; }
     public required string Title { get; set; }

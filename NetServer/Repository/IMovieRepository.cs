@@ -19,5 +19,4 @@ public interface IMovieRepository {
     Task AddMovieToUserAsync(string userId, Movie movie);
     Task<bool> UpdateMovieAsync(string userId, string movieId, float rating);
     Task<bool> DeleteMovieAsync(string userId, string movieId);
-    Task<bool> LogMovieEntry(string userId, string apiId, DateTime dateWatched, float? rating = null);
 }
