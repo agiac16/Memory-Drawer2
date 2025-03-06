@@ -25,5 +25,18 @@ public class User
     public List<Book>? Books { get; set; } = new List<Book>(); 
     public List<Game>? Games { get; set; } = new List<Game>();
 
+    // use generics || usage in repo to reduce complexity
+    public List<T> GetMediaList<T>() where T : class
+    {
+        return typeof(T) switch
+        {
+            Type when typeof(T) == typeof(Movie) => (Movies as List<T>) ?? new(),
+            Type when typeof(T) == typeof(Music) => (Music as List<T>) ?? new(),
+            Type when typeof(T) == typeof(Book) => (Books as List<T>) ?? new(),
+            Type when typeof(T) == typeof(Game) => (Games as List<T>) ?? new(),
+            _ => new List<T>()
+        };
+    }
+
     public User() { }
 }

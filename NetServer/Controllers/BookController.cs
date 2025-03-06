@@ -13,11 +13,11 @@ using Microsoft.AspNetCore.Cors;
 public class BookController : Controller
 {
     private readonly SearchService _searchService;
-    private readonly IBookRepository _bookRepository;
+    private readonly IMediaRepository<Book> _bookRepository;
     private readonly HttpClient _httpClient;
     private readonly string _bookApiKey;
 
-    public BookController(IBookRepository bookRepository, IConfiguration configuration, SearchService searchService)
+    public BookController(IMediaRepository<Book> bookRepository, IConfiguration configuration, SearchService searchService)
     {
         _bookRepository = bookRepository;
         _searchService = searchService;
@@ -74,7 +74,7 @@ public class BookController : Controller
             Rating = null
         };
 
-        await _bookRepository.AddBookAsync(request.UserId, book);
+        await _bookRepository.AddItemToUserAsync(request.UserId, book);
         return Ok(new { message = $"{book.Title} added successfully." });
     }
 
@@ -83,7 +83,7 @@ public class BookController : Controller
     {
         if (string.IsNullOrWhiteSpace(userId)) return BadRequest("User Id is requited");
 
-        var userBooks = await _bookRepository.GetAllBooksyUserAsync(userId);
+        var userBooks = await _bookRepository.GetAllByUserAsync(userId);
 
         if (userBooks == null || !userBooks.Any())
             return NotFound(new { message = "No books found for user" });
@@ -100,7 +100,7 @@ public class BookController : Controller
         if (request.Rating < 0 || request.Rating > 5)
             return BadRequest("Invalid rating value. Rating must be between 0 and 5.");
 
-        bool success = await _bookRepository.UpdateBookRatingAsync(userId, itemId, request.Rating);
+        bool success = await _bookRepository.UpdateRatingAsync(userId, itemId, request.Rating);
         if (!success) return NotFound("Item not found");
 
         return Ok("Rating updated successfully");
@@ -112,7 +112,7 @@ public class BookController : Controller
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(bookId))
             return BadRequest("User ID and Book ID are required");
 
-        var success = await _bookRepository.DeleteBookAsync(userId, bookId);
+        var success = await _bookRepository.DeleteItemAsync(userId, bookId);
         if (!success) return NotFound("Item not found");
 
         return Ok("Item deleted");

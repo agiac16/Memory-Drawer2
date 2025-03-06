@@ -13,11 +13,11 @@ using Microsoft.AspNetCore.Cors;
 public class GameController : Controller
 {
     private readonly SearchService _searchService;
-    private readonly IGameRepository _gameRepository;
+    private readonly IMediaRepository<Game> _gameRepository;
     private readonly HttpClient _httpClient;
     private readonly string _gameApiKey;
 
-    public GameController(IGameRepository gameRepository, IConfiguration configuration, SearchService searchService)
+    public GameController(IMediaRepository<Game> gameRepository, IConfiguration configuration, SearchService searchService)
     {
         _gameRepository = gameRepository;
         _searchService = searchService; 
@@ -79,7 +79,7 @@ public class GameController : Controller
             Rating = null
         };
 
-        await _gameRepository.AddGameAsync(request.UserId, game);
+        await _gameRepository.AddItemToUserAsync(request.UserId, game);
         return Ok(new { message = $"{game.Title} added successfully." });
     }
 
@@ -87,7 +87,7 @@ public class GameController : Controller
     public async Task<IActionResult> GetAllUserGames([FromRoute] string userId) {
         if (string.IsNullOrWhiteSpace(userId)) return BadRequest("User ID is required");
 
-        var userGames = await _gameRepository.GetAllGamesByUserAsync(userId);
+        var userGames = await _gameRepository.GetAllByUserAsync(userId);
 
         if (userGames == null || !userGames.Any()) 
             return NotFound(new { message = "no games found for user"});
@@ -104,7 +104,7 @@ public class GameController : Controller
         if (request.Rating < 0 || request.Rating > 5) 
             return BadRequest("Invalid rating. Rating must be between 0 and 5.");
         
-        bool success = await _gameRepository.UpdateGameRatingAsync(userId, itemId, request.Rating); 
+        bool success = await _gameRepository.UpdateRatingAsync(userId, itemId, request.Rating); 
 
         if (!success) return NotFound("item not found"); 
 
@@ -116,7 +116,7 @@ public class GameController : Controller
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(gameId)) 
             return BadRequest("User Id and Game Id are required.");
         
-        var success = await _gameRepository.DeleteGameAsync(userId, gameId); 
+        var success = await _gameRepository.DeleteItemAsync(userId, gameId); 
         if (!success) return NotFound("Game not found");
 
         return Ok("Game deleted successfully.");

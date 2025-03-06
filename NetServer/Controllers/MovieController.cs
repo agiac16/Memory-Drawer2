@@ -14,11 +14,11 @@ using Microsoft.AspNetCore.Cors;
 public class MovieController : Controller
 {
     private readonly SearchService _searchService;
-    private readonly IMovieRepository _movieRepository;
+    private readonly IMediaRepository<Movie> _movieRepository;
     private readonly HttpClient _httpClient;
     private readonly string _tmdbApiKey;
 
-    public MovieController(IMovieRepository movieRepository, IConfiguration configuration, SearchService searchService)
+    public MovieController(IMediaRepository<Movie> movieRepository, IConfiguration configuration, SearchService searchService)
     {
         _movieRepository = movieRepository;
         _searchService = searchService; 
@@ -78,7 +78,7 @@ public class MovieController : Controller
             Rating = null
         };
 
-        await _movieRepository.AddMovieToUserAsync(request.UserId, movie);
+        await _movieRepository.AddItemToUserAsync(request.UserId, movie);
         return Ok(new { message = $"{movie.Title} added successfully." }); // return json obj angular expects
     }
 
@@ -108,7 +108,7 @@ public class MovieController : Controller
         if (request.Rating < 0 || request.Rating > 5)
             return BadRequest("Invalid rating value. Rating must be between 0 and 5.");
 
-        bool success = await _movieRepository.UpdateMovieAsync(userId, itemId, request.Rating);
+        bool success = await _movieRepository.UpdateRatingAsync(userId, itemId, request.Rating);
 
         if (!success) return NotFound("Item not found");
 
@@ -123,7 +123,7 @@ public class MovieController : Controller
             return BadRequest("User ID and Movie ID are required.");
         }
 
-        var success = await _movieRepository.DeleteMovieAsync(userId, movieId);
+        var success = await _movieRepository.DeleteItemAsync(userId, movieId);
         if (!success) return NotFound("Movie not found");
 
         return Ok("Movie deleted");
