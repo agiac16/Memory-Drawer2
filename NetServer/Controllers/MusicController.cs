@@ -7,6 +7,7 @@ using NetServer.Models;
 using NetServer.Repositories;
 using ZstdSharp.Unsafe;
 using Microsoft.AspNetCore.Cors;
+using SharpCompress.Common;
 
 [EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
@@ -113,5 +114,21 @@ public class MusicController : Controller
         return Ok("Item deleted");
     }
 
-     // search function or in service not sure yet
+    [HttpPost("{userId}/log")]
+    public async Task<IActionResult> LogMusicEntry(string userId, [FromBody] MusicLogEntry entry) {
+        if (entry == null || entry.DateListened == default || string.IsNullOrEmpty(entry.ApiId))
+            return BadRequest(new { error = "Invalid log entry."});
+        
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest(new { error = "Invalid User Id"});
+        
+        var success = await _musicRepository.LogMusicEntryAsync(userId, entry.ApiId, entry.DateListened, entry.Rating);
+
+        if (!success)
+            return NotFound(new { error = "Music not found or updated"});
+        
+        return Ok(new { message = "Item logged successfully"});
+
+    }
+
 }

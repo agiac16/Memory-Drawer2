@@ -13,4 +13,6 @@ public interface IMusicRepository {
 
     Task<bool> DeleteMusicAsync(string userId, string musicId);
 
+    Task<bool> LogMusicEntryAsync(string userId, string apiId, DateTime dateListened, float? rating = null);
+
 }

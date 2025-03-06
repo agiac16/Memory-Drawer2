@@ -6,5 +6,10 @@ public class Movie {
     public required string Title { get; set; }
     public string? PosterPath { get; set; } 
     public float? Rating { get; set; }   
-    
+    public List<MovieLogEntry> LogEntries { get; set; } = new List<MovieLogEntry>(); 
+}
+
+public class MovieLogEntry { 
+    public DateTime DateWatched { get; set; }
+    // use rating from above    
 }

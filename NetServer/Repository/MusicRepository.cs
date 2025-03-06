@@ -109,5 +109,23 @@ namespace NetServer.Repositories
                 return result.ModifiedCount > 0; // true if music was deleted
         }
 
+        public async Task<bool> LogMusicEntryAsync(string userId, string apiId, DateTime dateListened, float? rating = null) { 
+            var filter = Builders<User>.Filter.And(
+                Builders<User>.Filter.Eq(u => u.Id, userId), 
+                Builders<User>.Filter.ElemMatch(u => u.Music, m => m.ApiId == apiId)
+            );
+
+            // create new log entry 
+            var newLogEntry = new MusicLogEntry { 
+                ApiId = apiId, 
+                DateListened = dateListened,
+                Rating = rating
+            };
+
+            // adds it to users log list
+            var update = Builders<User>.Update.Push("Music.$.LogEntries", newLogEntry);
+            var result = await _users.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
