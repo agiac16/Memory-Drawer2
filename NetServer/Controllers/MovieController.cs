@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
 using ZstdSharp.Unsafe;
+using Microsoft.AspNetCore.Cors;
 
+[EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
 [Route("api/movies")]
 public class MovieController : Controller
@@ -77,7 +79,7 @@ public class MovieController : Controller
         };
 
         await _movieRepository.AddMovieToUserAsync(request.UserId, movie);
-        return Ok($"'{movie.Title}' added successfully.");
+        return Ok(new { message = $"{movie.Title} added successfully." }); // return json obj angular expects
     }
 
     [HttpGet("{userId}/all")]

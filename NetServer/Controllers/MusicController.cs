@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
 using ZstdSharp.Unsafe;
+using Microsoft.AspNetCore.Cors;
 
+[EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
 [Route("api/music")]
 public class MusicController : Controller
@@ -68,7 +70,7 @@ public class MusicController : Controller
         };
 
         await _musicRepository.AddMusicAsync(request.UserId, music);
-        return Ok($"Music '{music.Title}' added successfully.");
+        return Ok(new { message = $"{music.Title} added successfully." });
     }
 
     [HttpGet("{userId}/all")]

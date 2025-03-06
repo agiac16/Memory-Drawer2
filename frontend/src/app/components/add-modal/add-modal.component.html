@@ -1,10 +1,8 @@
 <div class="fixed inset-0 flex items-center justify-center bg-opacity-50">
   <div class="bg-gray-700 p-6 rounded-lg w-full max-w-3xl shadow-lg">
+    
     <!-- Dropdown to Select Type -->
-    <select
-      (change)="onTypeSelect($event)"
-      class="w-full p-2 border border-gray-300 rounded mb-4 text-white font-semibold"
-    >
+    <select (change)="onTypeSelect($event)" class="w-full p-2 border border-gray-300 rounded mb-4 text-white font-semibold">
       <option value="">Add new...</option>
       <option *ngFor="let type of types" [value]="type.value">
         {{ type.label }}
@@ -21,126 +19,55 @@
           [placeholder]="'Search for ' + selectedType"
           class="flex-1 p-2 border border-gray-300 rounded"
         />
-        <button
-          (click)="onSearch()"
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
+        <button (click)="onSearch()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Search
         </button>
       </div>
     </div>
 
-    <!-- Search Results (Grid) -->
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="text-green-400 text-center mb-4">
+      {{ successMessage }}
+    </div>
+
+    <!-- Search Results -->
     <div *ngIf="searchResults.length > 0" class="overflow-y-auto max-h-96">
       <div class="grid grid-cols-4 gap-4">
-        <!-- Display only the first 16 albums -->
-        <ng-container *ngIf="selectedType === 'album'">
-          <div
-            *ngFor="let album of searchResults.slice(0, 16)"
-            class="p-2 border rounded shadow-sm text-center"
-          >
-            <!-- Album Cover -->
-            <img
-              [src]="album.image"
-              alt="Album Cover"
-              class="w-full h-40 object-cover rounded"
-            />
+        
+        <div *ngFor="let item of searchResults.slice(0, 16)" class="relative p-2 border rounded shadow-sm text-center bg-gray-800">
+          
+          <!-- "Add" Button -->
+          <button (click)="addItemToList(item)" class="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full hover:bg-green-600">
+            +
+          </button>
 
-            <!-- Album Title -->
-            <p class="text-sm font-semibold mt-2 text-white">
-              {{ album.title }}
-            </p>
+          <!-- Image (Movie, Book, Album, Game) -->
+          <img
+            [src]="item.poster_path || item.artwork || item.image || 'https://via.placeholder.com/150'"
+            alt="{{ item.title || item.name }}"
+            class="w-full h-40 object-cover rounded"
+          />
 
-            <!-- Artist Name -->
-            <p class="text-xs text-gray-500">{{ album.artist }}</p>
-          </div>
-        </ng-container>
-
-        <!-- Display only the first 16 movies -->
-        <ng-container
-          *ngIf="selectedType === 'movie' && searchResults.length > 0"
-        >
-          <div
-            *ngFor="let movie of searchResults.slice(0, 16)"
-            class="p-2 border rounded shadow-sm text-center bg-gray-800"
-          >
-            <!-- Movie Poster -->
-            <img
-              [src]="movie.poster_path"
-              alt="{{ movie.title }}"
-              class="w-full h-40 object-cover rounded"
-              onerror="this.onerror=null;this.src='https://via.placeholder.com/150';"
-            />
-
-            <!-- Movie Title -->
-            <p class="text-sm font-semibold mt-2 text-white">
-              {{ movie.title }}
-            </p>
-          </div>
-        </ng-container>
-
-        <!-- Handle empty search results -->
-        <ng-container
-          *ngIf="selectedType === 'movie' && searchResults.length === 0"
-        >
-          <p class="text-center text-gray-400">
-            No movies found. Try another search.
+          <!-- Title -->
+          <p class="text-sm font-semibold mt-2 text-white">
+            {{ item.title || item.name }}
           </p>
-        </ng-container>
 
-        <!-- Display books -->
-        <ng-container *ngIf="selectedType === 'book'">
-          <div
-            *ngFor="let book of searchResults.slice(0, 16)"
-            class="p-2 border rounded shadow-sm text-center"
-          >
-            <!-- Book Cover -->
-            <img
-              [src]="book.thumbnail"
-              alt="Book Cover"
-              class="w-full h-40 object-cover rounded"
-            />
-
-            <!-- Book Title -->
-            <p class="text-sm font-semibold mt-2 text-white">
-              {{ book.title }}
-            </p>
-
-            <!-- Book Authors -->
-            <p class="text-xs text-gray-300">{{ book.authors }}</p>
-          </div>
-        </ng-container>
-
-        <!-- Display only the first 16 games -->
-        <ng-container *ngIf="selectedType === 'game'">
-          <div
-            *ngFor="let game of searchResults.slice(0, 16)"
-            class="p-2 border rounded shadow-sm text-center"
-          >
-            <!-- Game Cover -->
-            <img
-              [src]="game.artwork || 'https://via.placeholder.com/150'"
-              alt="Game Cover"
-              class="w-full h-40 object-cover rounded"
-            />
-
-            <!-- Game Title -->
-            <p class="text-sm font-semibold mt-2 text-white">
-              {{ game.name }}
-            </p>
-          </div>
-        </ng-container>
+          <!-- Extra Info -->
+          <p class="text-xs text-gray-300" *ngIf="item.artist || item.authors">
+            {{ item.artist || item.authors }}
+          </p>
+          
+        </div>
       </div>
     </div>
 
-    <!-- Modal Close Button -->
+    <!-- Close Button -->
     <div class="flex justify-end mt-4">
-      <button
-        (click)="close()"
-        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-      >
+      <button (click)="close()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
         Close
       </button>
     </div>
+
   </div>
 </div>

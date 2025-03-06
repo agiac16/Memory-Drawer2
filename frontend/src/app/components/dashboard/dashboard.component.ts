@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule], 
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -46,12 +46,13 @@ export class DashboardComponent implements OnInit {
     this.userId = localStorage.getItem('userId') || '';
 
     if (this.userId) {
-      this.loadMovies();
-      this.loadAlbums();
+      console.log('📌 Fetching books...');
       this.loadBooks();
+      this.loadAlbums();
       this.loadGames();
+      this.loadMovies();
     } else {
-      console.error('User ID not found.');
+      console.error('🚨 User ID not found.');
     }
   }
 
@@ -63,19 +64,13 @@ export class DashboardComponent implements OnInit {
     if (!this.userId) return;
     this.movieService.getUserMovies(this.userId).subscribe({
       next: (response) => {
-        console.log("🎬 Movie API Response:", response);
-        
         if (!Array.isArray(response)) {
-          console.error("🚨 Expected an array but got:", response);
+          console.error("🚨 Unexpected Movies API response structure", response);
           return;
         }
-  
-        this.movies = response; // ✅ Assigning data correctly
-        if (this.movies.length > 0) {
-          this.firstMovieImageUrl = this.getPosterUrl(this.movies[0].posterPath);
-        } else {
-          this.firstMovieImageUrl = null;
-        }
+        this.movies = response; // ✅ Ensure this is correct
+        console.log("🎬 Processed Movies:", this.movies);
+        this.firstMovieImageUrl = this.movies.length ? this.movies[0].posterPath : null;
       },
       error: (err) => {
         console.error("🚨 Error fetching movies:", err);
@@ -85,35 +80,69 @@ export class DashboardComponent implements OnInit {
 
   loadBooks(): void {
     if (!this.userId) return;
+
     this.bookService.getUserBooks(this.userId).subscribe({
       next: (response) => {
-        console.log("Books API Response:", response);
-        this.books = response?.data ?? [];
-        this.firstBookImageUrl = this.books.length ? this.books[0].artwork : null;
+        if (!Array.isArray(response)) {
+          console.error('Unexpected books API response structure', response);
+          return;
+        }
+
+        this.books = response;
+        this.firstBookImageUrl = this.books.length
+          ? this.books[0].artwork
+          : null;
       },
       error: (err) => {
-        console.error('🚨 Error fetching books:', err);
+        console.error('Error fetching books:', err);
       },
     });
-}
+  }
 
   loadAlbums(): void {
     if (!this.userId) return;
-    this.albumService.getUserAlbums(this.userId).subscribe((response) => {
-      console.log("Album API Response:", response);
-      this.albums = response?.data ?? [];
-      this.firstAlbumImageUrl = this.albums.length
-        ? this.albums[0].artwork
-        : null;
+
+    this.albumService.getUserAlbums(this.userId).subscribe({
+      next: (response) => {
+        if (!Array.isArray(response)) {
+          console.error(
+            'Unexpected Albums API response structure',
+            response
+          );
+          return;
+        }
+
+        this.albums = response;
+
+        this.firstAlbumImageUrl = this.albums.length
+          ? this.albums[0].artwork
+          : null;
+      },
+      error: (err) => {
+        console.error('Error fetching albums:', err);
+      },
     });
   }
 
   loadGames(): void {
     if (!this.userId) return;
-    this.gameService.getUserGames(this.userId).subscribe((response) => {
-      console.log("game API Response:", response);
-      this.games = response?.data ?? [];
-      this.firstGameImageUrl = this.games.length ? this.games[0].cover : null;
+
+    this.gameService.getUserGames(this.userId).subscribe({
+      next: (response) => {
+        if (!Array.isArray(response)) {
+          console.error('Unexpected Games API response structure', response);
+          return;
+        }
+
+        this.games = response; 
+
+        this.firstGameImageUrl = this.games.length
+          ? this.games[0].artwork
+          : null;
+      },
+      error: (err) => {
+        console.error('Error fetching games:', err);
+      },
     });
   }
 

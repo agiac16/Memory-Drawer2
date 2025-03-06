@@ -9,9 +9,11 @@ using BCrypt.Net;
 using NetServer.Repositories;
 using NetServer.Abstractions;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Cors;
 
 namespace NetServer.Controllers;
 
+[EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
 [Route("api/user")]
 public class UserController : Controller

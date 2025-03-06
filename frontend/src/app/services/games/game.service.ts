@@ -52,7 +52,7 @@ export class GameService {
       this.getUserGames(userId).subscribe((response) => {
         const games = response.data;
         if (games.length > 0) {
-          observer.next(games[0].cover);
+          observer.next(games[0].artwork);
         } else {
           observer.next(null);
         }

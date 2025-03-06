@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
 using ZstdSharp.Unsafe;
+using Microsoft.AspNetCore.Cors;
 
+[EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
 [Route("api/games")]
 public class GameController : Controller
@@ -78,7 +80,7 @@ public class GameController : Controller
         };
 
         await _gameRepository.AddGameAsync(request.UserId, game);
-        return Ok($"'{game.Title}' added successfully");
+        return Ok(new { message = $"{game.Title} added successfully." });
     }
 
     [HttpGet("{userId}/all")]

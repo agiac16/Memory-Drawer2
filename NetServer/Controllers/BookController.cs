@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
 using ZstdSharp.Unsafe;
+using Microsoft.AspNetCore.Cors;
 
+[EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
 [Route("api/books")]
 public class BookController : Controller
@@ -73,7 +75,7 @@ public class BookController : Controller
         };
 
         await _bookRepository.AddBookAsync(request.UserId, book);
-        return Ok($"Book '{book.Title}' added successfully");
+        return Ok(new { message = $"{book.Title} added successfully." });
     }
 
     [HttpGet("{userId}/all")]

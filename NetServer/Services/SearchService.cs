@@ -7,7 +7,7 @@ public class SearchService
 {
     private readonly HttpClient _httpClient;
     private readonly string _googleApiKey;
-    private readonly string _tmdbApiKey;
+    private readonly string _tmdbHeaderApiKey;
     private readonly string _giantBombApiKey;
     private readonly string _lastFmApiKey;
 
@@ -17,7 +17,7 @@ public class SearchService
         _googleApiKey = configuration["Google:ApiKey"]
             ?? throw new ArgumentNullException("Google API key is missing in configuration");
 
-        _tmdbApiKey = configuration["TMDB:ApiKey"]
+        _tmdbHeaderApiKey = configuration["TMDB:HeaderApiKey"]
             ?? throw new ArgumentNullException("TMDB API key is missing in configuration");
 
         _giantBombApiKey = configuration["GiantBomb:ApiKey"]
@@ -65,7 +65,7 @@ public class SearchService
         var req = new HttpRequestMessage(HttpMethod.Get, url); // send a get request 
 
         // attach headers
-        req.Headers.Add("Authorization", $"Bearer {_tmdbApiKey}");
+        req.Headers.Add("Authorization", $"Bearer {_tmdbHeaderApiKey}");
         var res = await _httpClient.SendAsync(req);
 
         Console.WriteLine($"TMDB Response Status: {res.StatusCode}");
@@ -78,8 +78,6 @@ public class SearchService
         }
 
         string responseData = await res.Content.ReadAsStringAsync();
-        Console.WriteLine($"TMDB API Response: {responseData}");  // Log raw JSON response
-
         return responseData;
     }
 

@@ -10,14 +10,18 @@ using NetServer.Repository;
 var builder = WebApplication.CreateBuilder(args);
 
 // cors policy to accept from frontend
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAngularApp",
-    policy => {
-        policy.WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // ✅ Allow Frontend URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
 });
 
 // singleton is a single instance used for entire lifetime of app | used by everything in app
@@ -68,10 +72,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseCors(MyAllowSpecificOrigins); 
 // different controllers for each api
 app.MapControllers();
-app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
 
 app.Run();

@@ -28,30 +28,31 @@ export class MovieService {
         : posterPath; // If full URL is provided, use it directly
     }
 
-  searchMovie(searchQuery: string): Observable<any[]> {
-    const apiUrl = `http://localhost:5000/api/movies/search`;
-    // handled in backend
-    return this.http.get<any>(apiUrl, {
-        params: { title : searchQuery}, 
-        withCredentials: true
-    }).pipe(
-        map((response: any) => { 
-            console.log("api res", response);
-
-            if (!response.results) return [];
-
-            return response.results.map((movie: any) => ({
-                title: movie.title ?? "Untitled",
-                poster_path: movie.poster_path
-                    ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` 
-                    : 'https://via.placeholder.com/150',
-            }));
-        }),
-        catchError(error => {
-            console.error("error searching movies", error);
-            return [];
-        })
-    )
+    searchMovie(searchQuery: string): Observable<any[]> {
+      const apiUrl = `http://localhost:5000/api/movies/search`;
+      
+      return this.http.get<any>(apiUrl, {
+          params: { title: searchQuery }, 
+          withCredentials: true
+      }).pipe(
+          map((response: any) => { 
+              console.log("📌 API Response:", response);
+  
+              if (!response.results) return [];
+  
+              return response.results.map((movie: any) => ({
+                  id: movie.id, // ✅ Ensure movie ID is included
+                  title: movie.title ?? "Untitled",
+                  poster_path: movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w200${movie.poster_path}` 
+                      : 'https://via.placeholder.com/150',
+              }));
+          }),
+          catchError(error => {
+              console.error("🚨 Error searching movies:", error);
+              return [];
+          })
+      );
   }
 
   getFirstMovieImageUrl(userId: string): Observable<string | null> {
