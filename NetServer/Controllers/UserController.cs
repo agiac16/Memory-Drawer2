@@ -83,18 +83,6 @@ public class UserController : Controller
             token = token
         });
     }
-
-    [HttpGet("{userId}/logged")]
-    public async Task<ActionResult> GetUserLogged([FromRoute] string userId) { 
-        if (string.IsNullOrWhiteSpace(userId)) return BadRequest("User ID required");
-
-        var user = await _userRepository.GetByIdAsync(userId);
-
-        if (user == null) return NotFound("User not found");
-
-        return Ok(new { success = true, loggedItems = user.Logged});
-    }
-
     // get users info -- test endpoint
     [HttpGet("{userId}")]
     public async Task<ActionResult> GetUserInfo([FromRoute] String userId)

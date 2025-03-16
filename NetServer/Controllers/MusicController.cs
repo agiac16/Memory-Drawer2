@@ -1,13 +1,8 @@
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using DnsClient.Protocol;
 using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
-using ZstdSharp.Unsafe;
 using Microsoft.AspNetCore.Cors;
-using SharpCompress.Common;
 
 [EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
@@ -33,50 +28,59 @@ public class MusicController : Controller
     {
         if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
 
-        var res = await _searchService.SearchMusicAsync(title);
+        try
+        {
+            var res = await _searchService.SearchMusicAsync(title);
+            if (res == null) return NotFound("No music matching search");
 
-        if (res == null) return NotFound("No music matching search");
-
-        return Ok(res);
+            return Ok(res);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error searching music: {e.Message}");
+            return StatusCode(500, "An error occurred while searching for music.");
+        }
     }
 
     [HttpPost("add")]
     public async Task<ActionResult> AddMusicToUser([FromBody] ItemAddRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrEmpty(request.ItemId))
-        {
             return BadRequest("User ID and Item ID are required");
-        }
 
-        string url = $"http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={_musicApiKey}&mbid={request.ItemId}&format=json";
-        var res = await _httpClient.GetStringAsync(url); // return body as string 
-
-        if (string.IsNullOrEmpty(res))
+        try
         {
-            return NotFound("Item not found in API.");
+            string url = $"http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={_musicApiKey}&mbid={request.ItemId}&format=json";
+            var res = await _httpClient.GetStringAsync(url); 
+
+            if (string.IsNullOrEmpty(res))
+                return NotFound("Item not found in API.");
+
+            var musicDetails = JsonSerializer.Deserialize<MusicResponse>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (musicDetails?.Album == null)
+                return BadRequest("Invalid Item");
+
+            string artworkUrl = musicDetails.Album.Images?.LastOrDefault()?.Url ?? "";
+
+            var music = new Music
+            {
+                UserId = request.UserId,
+                ApiId = request.ItemId,
+                Title = musicDetails.Album.Name ?? "Unknown Title",
+                Artist = musicDetails.Album.Artist ?? "Unknown Artist",
+                Artwork = artworkUrl,
+                Rating = null
+            };
+
+            await _musicRepository.AddItemToUserAsync(request.UserId, music);
+            return Ok(new { message = $"{music.Title} added successfully." });
         }
-
-        var musicDetails = JsonSerializer.Deserialize<MusicResponse>(res); // maps it to this response class
-
-        if (musicDetails?.Album == null)
+        catch (Exception e)
         {
-            return BadRequest("Invalid Item");
+            Console.WriteLine($"Error adding music: {e.Message}");
+            return StatusCode(500, "An error occurred while adding the music.");
         }
-
-        string artworkUrl = musicDetails.Album.Images?.LastOrDefault()?.Url ?? "";
-
-        var music = new Music
-        {
-            UserId = request.UserId,
-            ApiId = request.ItemId,
-            Title = musicDetails.Album.Name ?? "Unknown Title",
-            Artist = musicDetails.Album.Artist ?? "Unknown Artist",
-            Artwork = artworkUrl,
-            Rating = null
-        };
-
-        await _musicRepository.AddItemToUserAsync(request.UserId, music);
-        return Ok(new { message = $"{music.Title} added successfully." });
     }
 
     [HttpGet("{userId}/all")]
@@ -85,14 +89,19 @@ public class MusicController : Controller
         if (string.IsNullOrWhiteSpace(userId))
             return BadRequest("User ID is required");
 
-        var userMusic = await _musicRepository.GetAllByUserAsync(userId);
-
-        if (userMusic == null || !userMusic.Any())
+        try
         {
-            return NotFound(new { message = "no music found for user" });
-        }
+            var userMusic = await _musicRepository.GetAllByUserAsync(userId);
+            if (userMusic == null || !userMusic.Any())
+                return NotFound(new { message = "No music found for user" });
 
-        return Ok(userMusic); // json
+            return Ok(userMusic);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error fetching user music: {e.Message}");
+            return StatusCode(500, "An error occurred while retrieving user music.");
+        }
     }
 
     [HttpPut("{userId}/rate/{itemId}")]
@@ -104,26 +113,37 @@ public class MusicController : Controller
         if (request.Rating < 0 || request.Rating > 5)
             return BadRequest("Invalid rating value. Rating must be between 0 and 5.");
 
-        bool success = await _musicRepository.UpdateRatingAsync(userId, itemId, request.Rating);
+        try
+        {
+            bool success = await _musicRepository.UpdateRatingAsync(userId, itemId, request.Rating);
+            if (!success) return NotFound("Item not found");
 
-        if (!success) return NotFound("Item not found");
-
-        return Ok("Rating updated success");
+            return Ok("Rating updated successfully.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error updating music rating: {e.Message}");
+            return StatusCode(500, "An error occurred while updating the music rating.");
+        }
     }
 
-
-    // not working
-    
     [HttpDelete("{userId}/{musicId}")]
     public async Task<ActionResult> DeleteMusic(string userId, string musicId)
     {
-        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(musicId))
-            return BadRequest("User ID and Movie ID are required");
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(musicId))
+            return BadRequest("User ID and Music ID are required");
 
-        var success = await _musicRepository.DeleteItemAsync(userId, musicId);
-        if (!success) return NotFound("Item not found");
+        try
+        {
+            var success = await _musicRepository.DeleteItemAsync(userId, musicId);
+            if (!success) return NotFound("Item not found");
 
-        return Ok("Item deleted");
+            return Ok("Item deleted successfully.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error deleting music: {e.Message}");
+            return StatusCode(500, "An error occurred while deleting the music.");
+        }
     }
-
 }

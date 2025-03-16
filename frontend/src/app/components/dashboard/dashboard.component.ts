@@ -174,7 +174,7 @@ export class DashboardComponent implements OnInit {
 
         switch (type) {
           case 'movies':
-            this.movies = this.movies.filter((m) => m.apId !== itemId);
+            this.movies = this.movies.filter((m) => m.apiId !== itemId);
             break;
           case 'books':
             this.books = this.books.filter((b) => b.apiId !== itemId);
