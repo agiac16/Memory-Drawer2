@@ -1,11 +1,7 @@
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using DnsClient.Protocol;
 using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
-using ZstdSharp.Unsafe;
 using Microsoft.AspNetCore.Cors;
 
 [EnableCors("_myAllowSpecificOrigins")]
@@ -28,75 +24,88 @@ public class MovieController : Controller
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchMovies([FromQuery] string title) { 
+    public async Task<IActionResult> SearchMovies([FromQuery] string title)
+    { 
         if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
 
-        var res = await _searchService.SearchMoviesAsync(title); 
-        if (res == null) return NotFound("No music matching search");
+        try
+        {
+            var res = await _searchService.SearchMoviesAsync(title);
+            if (res == null) return NotFound("No movies matching search");
 
-        return Ok(res);
+            return Ok(res);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error searching movies: {e.Message}");
+            return StatusCode(500, "An error occurred while searching for movies.");
+        }
     }
 
     [HttpPost("add")]
     public async Task<ActionResult> AddMovieToUser([FromBody] ItemAddRequest request)
     {
         if (request is null)
-        {
             return BadRequest("Invalid JSON format.");
-        }
 
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.ItemId))
-        {
             return BadRequest("User ID and Movie ID are required.");
-        }
 
-        // Call TMDB API
-        string url = $"https://api.themoviedb.org/3/movie/{request.ItemId}?api_key={_tmdbApiKey}";
-        var res = await _httpClient.GetStringAsync(url);
-
-        if (string.IsNullOrEmpty(res))
+        try
         {
-            return NotFound("Movie not found in TMDB.");
+            // Call TMDB API
+            string url = $"https://api.themoviedb.org/3/movie/{request.ItemId}?api_key={_tmdbApiKey}";
+            var res = await _httpClient.GetStringAsync(url);
+
+            if (string.IsNullOrEmpty(res))
+                return NotFound("Movie not found in TMDB.");
+
+            var movieDetails = JsonSerializer.Deserialize<MovieResponse>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (movieDetails == null)
+                return BadRequest("Invalid movie data received.");
+
+            string baseImageUrl = "https://image.tmdb.org/t/p/w500";
+            string posterUrl = string.IsNullOrEmpty(movieDetails.PosterPath) ? "" : $"{baseImageUrl}{movieDetails.PosterPath}";
+
+            var movie = new Movie
+            {
+                UserId = request.UserId,
+                ApiId = request.ItemId,
+                Title = movieDetails.Title ?? "Unknown Title",
+                PosterPath = posterUrl,
+                Rating = null
+            };
+
+            await _movieRepository.AddItemToUserAsync(request.UserId, movie);
+            return Ok(new { message = $"{movie.Title} added successfully." }); 
         }
-
-        var movieDetails = JsonSerializer.Deserialize<MovieResponse>(res);
-
-        if (movieDetails == null)
+        catch (Exception e)
         {
-            return BadRequest("Invalid movie data received.");
+            Console.WriteLine($"Error adding movie: {e.Message}");
+            return StatusCode(500, "An error occurred while adding the movie.");
         }
-
-        string baseImageUrl = "https://image.tmdb.org/t/p/w500";
-        string posterUrl = string.IsNullOrEmpty(movieDetails.PosterPath) ? "" : $"{baseImageUrl}{movieDetails.PosterPath}";
-
-        var movie = new Movie
-        {
-            UserId = request.UserId,
-            ApiId = request.ItemId,
-            Title = movieDetails.Title ?? "Unknown Title",
-            PosterPath = posterUrl,
-            Rating = null
-        };
-
-        await _movieRepository.AddItemToUserAsync(request.UserId, movie);
-        return Ok(new { message = $"{movie.Title} added successfully." }); // return json obj angular expects
     }
 
     [HttpGet("{userId}/all")]
     public async Task<IActionResult> GetAllUserMovies([FromRoute] string userId)
     {
         if (string.IsNullOrWhiteSpace(userId))
-        {
-            return BadRequest("User Id is required");
-        }
-        var userMovies = await _movieRepository.GetAllByUserAsync(userId);
+            return BadRequest("User ID is required");
 
-        if (userMovies == null || !userMovies.Any())
+        try
         {
-            return NotFound(new { message = "No movies found for this user." });
-        }
+            var userMovies = await _movieRepository.GetAllByUserAsync(userId);
+            if (userMovies == null || !userMovies.Any())
+                return NotFound(new { message = "No movies found for this user." });
 
-        return Ok(userMovies); // json list
+            return Ok(userMovies);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error fetching user movies: {e.Message}");
+            return StatusCode(500, "An error occurred while retrieving user movies.");
+        }
     }
 
     [HttpPut("{userId}/rate/{itemId}")]
@@ -108,27 +117,37 @@ public class MovieController : Controller
         if (request.Rating < 0 || request.Rating > 5)
             return BadRequest("Invalid rating value. Rating must be between 0 and 5.");
 
-        bool success = await _movieRepository.UpdateRatingAsync(userId, itemId, request.Rating);
+        try
+        {
+            bool success = await _movieRepository.UpdateRatingAsync(userId, itemId, request.Rating);
+            if (!success) return NotFound("Item not found");
 
-        if (!success) return NotFound("Item not found");
-
-        return Ok("Rating updated success");
+            return Ok("Rating updated successfully.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error updating movie rating: {e.Message}");
+            return StatusCode(500, "An error occurred while updating the movie rating.");
+        }
     }
 
     [HttpDelete("{userId}/{movieId}")]
     public async Task<ActionResult> DeleteMovie(string userId, string movieId)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(movieId))
-        {
             return BadRequest("User ID and Movie ID are required.");
+
+        try
+        {
+            var success = await _movieRepository.DeleteItemAsync(userId, movieId);
+            if (!success) return NotFound("Movie not found");
+
+            return Ok("Movie deleted successfully.");
         }
-
-        var success = await _movieRepository.DeleteItemAsync(userId, movieId);
-        if (!success) return NotFound("Movie not found");
-
-        return Ok("Movie deleted");
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error deleting movie: {e.Message}");
+            return StatusCode(500, "An error occurred while deleting the movie.");
+        }
     }
-
-
-    // search... here or service?
 }
