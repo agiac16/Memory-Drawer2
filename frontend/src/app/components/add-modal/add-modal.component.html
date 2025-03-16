@@ -9,7 +9,7 @@
       </option>
     </select>
 
-    <!-- Search Input -->
+    <!-- Search -->
     <div *ngIf="selectedType" class="mb-4">
       <div class="flex items-center gap-2 text-white font-semibold">
         <input
@@ -17,7 +17,7 @@
           [(ngModel)]="searchQuery"
           (keyup.enter)="onSearch()"
           [placeholder]="'Search for ' + selectedType"
-          class="flex-1 p-2 border border-gray-300 rounded"
+          class="flex-1 p-2 border border-gray-300 rounded capitalize"
         />
         <button (click)="onSearch()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Search
@@ -25,25 +25,25 @@
       </div>
     </div>
 
-    <!-- Success Message -->
+    <!-- success -->
     <div *ngIf="successMessage" class="text-green-400 text-center mb-4">
       {{ successMessage }}
     </div>
 
-    <!-- Search Results -->
+    <!-- results -->
     <div *ngIf="searchResults.length > 0" class="overflow-y-auto max-h-96">
       <div class="grid grid-cols-4 gap-4">
         
         <div *ngFor="let item of searchResults.slice(0, 16)" class="relative p-2 border rounded shadow-sm text-center bg-gray-800">
           
-          <!-- "Add" Button -->
+          <!-- add button -->
           <button (click)="addItemToList(item)" class="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full hover:bg-green-600">
             +
           </button>
 
-          <!-- Image (Movie, Book, Album, Game) -->
+          <!-- images || movie, game, album, book-->
           <img
-            [src]="item.poster_path || item.artwork || item.image || 'https://via.placeholder.com/150'"
+            [src]="item.poster_path || item.artwork || item.image || item.thumbnail || 'https://via.placeholder.com/150'"
             alt="{{ item.title || item.name }}"
             class="w-full h-40 object-cover rounded"
           />

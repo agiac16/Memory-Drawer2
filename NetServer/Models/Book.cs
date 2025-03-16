@@ -7,10 +7,4 @@ public class Book : IMediaItem {
     public required string Authors { get; set; }
     public required string Artwork { get; set; } 
     public float? Rating { get; set; }
-    public List<BookLogEntry> LogEntries { get; set; } = new List<BookLogEntry>(); 
-}
-
-public class BookLogEntry { 
-    public DateTime DateRead { get; set; }
-    // use rating from above    
 }

@@ -1,81 +1,183 @@
-<div class="min-h-screen flex flex-col items-center bg-black text-white">
-  <!-- Add button - stays at the bottom -->
-  <button 
-    class="rounded-full bg-blue-400 p-5 flex justify-center items-center fixed bottom-4 left-1/2 hover:translate-y-[-10px] transform -translate-x-1/2 transition-all duration-300"
+<div class="min-h-screen flex flex-col bg-gray-950 text-white">
+  <header class="text-center py-10">
+    <h1 class="text-4xl font-bold">Memory Drawer</h1>
+    <p class="text-gray-400 mt-2">Your Personal Media Tracker</p>
+  </header>
+
+  <!-- categories -->
+  <section class="flex justify-center gap-6 overflow-x-auto px-4 pb-6">
+    <ng-container
+      *ngFor="
+        let category of [
+          { type: 'movies', img: firstMovieImageUrl },
+          { type: 'books', img: firstBookImageUrl },
+          { type: 'albums', img: firstAlbumImageUrl },
+          { type: 'games', img: firstGameImageUrl }
+        ]
+      "
+    >
+      <div
+        *ngIf="category.img"
+        class="relative w-32 h-44 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform cursor-pointer bg-gray-800 flex items-center justify-center"
+        (click)="setActiveList(category.type)"
+      >
+        <img [src]="category.img" class="w-full h-full object-cover" />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-80 flex items-center justify-center transition-opacity"
+        >
+          <span class="text-white text-lg font-bold capitalize">{{
+            category.type
+          }}</span>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- lists -->
+  <section class="max-w-5xl w-full mx-auto px-8 mt-8">
+    <!-- Movies List -->
+    <div *ngIf="showMoviesList">
+      <h2 class="text-xl font-semibold mb-4">Movies</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+        <div
+          *ngFor="let movie of movies"
+          class="relative rounded-lg overflow-hidden"
+        >
+          <button
+            class="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs"
+            (click)="removeItemFromList(movie, 'movies')"
+          >
+            ✕
+          </button>
+          <img
+            [src]="getPosterUrl(movie.posterPath)"
+            class="aspect-[2/3] object-cover w-full"
+          />
+          <p class="mt-2 text-sm font-medium truncate">{{ movie.title }}</p>
+
+          <!-- Star Rating -->
+          <div class="flex justify-center mt-1">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="updateRating(movie, 'movies', star)"
+              class="cursor-pointer text-xl"
+              [class.text-yellow-400]="(movie.rating ?? 0) >= star"
+              [class.text-gray-400]="(movie.rating ?? 0) < star"
+            >
+              ★
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Books List -->
+    <div *ngIf="showBooksList">
+      <h2 class="text-xl font-semibold mb-4">Books</h2>
+      <div class="grid grid-cols-5 gap-4">
+        <div *ngFor="let book of books" class="relative">
+          <button
+            class="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs"
+            (click)="removeItemFromList(book, 'books')"
+          >
+            ✕
+          </button>
+          <img
+            [src]="book.artwork || 'https://via.placeholder.com/150'"
+            class="aspect-[2/3] object-cover w-full rounded"
+          />
+          <p class="mt-2 text-sm font-medium truncate">{{ book.title }}</p>
+          <p class="text-xs text-gray-400 truncate">{{ book.authors }}</p>
+
+          <!-- Star Rating -->
+          <div class="flex justify-center mt-1">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="updateRating(book, 'books', star)"
+              class="cursor-pointer text-xl"
+              [class.text-yellow-400]="book.rating >= star"
+              [class.text-gray-400]="book.rating < star"
+            >
+              ★
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Albums List -->
+    <div *ngIf="showAlbumsList">
+      <h2 class="text-lg font-semibold mb-4">Albums</h2>
+      <div class="grid grid-cols-5 gap-5">
+        <div *ngFor="let album of albums" class="relative">
+          <button
+            class="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs"
+            (click)="removeItemFromList(album, 'albums')"
+          >
+            ✕
+          </button>
+          <img
+            [src]="album.artwork"
+            class="aspect-square object-cover w-full rounded"
+          />
+          <p class="mt-2 text-sm font-medium truncate">{{ album.title }}</p>
+          <p class="text-xs text-gray-400 truncate">{{ album.artist }}</p>
+
+          <!-- Star Rating -->
+          <div class="flex justify-center mt-1">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="updateRating(album, 'music', star)"
+              class="cursor-pointer text-xl"
+              [class.text-yellow-400]="album.rating >= star"
+              [class.text-gray-400]="album.rating < star"
+            >
+              ★
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Games List -->
+    <div *ngIf="showGamesList">
+      <h2 class="text-lg font-semibold mb-4">Games</h2>
+      <div class="grid grid-cols-5 gap-5">
+        <div *ngFor="let game of games" class="relative">
+          <button
+            class="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs"
+            (click)="removeItemFromList(game, 'games')"
+          >
+            ✕
+          </button>
+          <img
+            [src]="game.artwork"
+            class="aspect-[3/4] object-cover w-full rounded"
+          />
+          <p class="mt-2 text-sm font-medium truncate">{{ game.title }}</p>
+
+          <!-- Star Rating -->
+          <div class="flex justify-center mt-1">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5]"
+              (click)="updateRating(game, 'games', star)"
+              class="cursor-pointer text-xl"
+              [class.text-yellow-400]="game.rating >= star"
+              [class.text-gray-400]="game.rating < star"
+            >
+              ★
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- add item -->
+  <button
+    class="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-5 rounded-full shadow-xl transition duration-300"
     (click)="openModal()"
   >
-    + Add new item
+    + Add Item
   </button>
-
-  <!-- Header -->
-  <h1 class="text-3xl font-bold text-center mt-8">Memory Drawer</h1>
-  <p class="text-gray-400 text-center mb-6">Your personal media tracker</p>
-
-  <!-- Category Preview Row -->
-  <div class="flex justify-center items-center space-x-4 overflow-x-auto w-full px-4">
-    <div 
-      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-      *ngIf="firstMovieImageUrl" 
-      (click)="setActiveList('movies')"
-    >
-      <img [src]="firstMovieImageUrl" class="w-full h-full object-cover" />
-    </div>
-
-    <div 
-      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-      *ngIf="firstBookImageUrl" 
-      (click)="setActiveList('books')"
-    >
-      <img [src]="firstBookImageUrl" class="w-full h-full object-cover" />
-    </div>
-
-    <div 
-      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-      *ngIf="firstAlbumImageUrl" 
-      (click)="setActiveList('albums')"
-    >
-      <img [src]="firstAlbumImageUrl" class="w-full h-full object-cover" />
-    </div>
-
-    <div 
-      class="w-28 h-40 bg-gray-800 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-      *ngIf="firstGameImageUrl" 
-      (click)="setActiveList('games')"
-    >
-      <img [src]="firstGameImageUrl" class="w-full h-full object-cover" />
-    </div>
-  </div>
-
-  <!-- Selected List View -->
-  <div class="mt-6 w-full px-6">
-    <div *ngIf="showMoviesList" class="grid grid-cols-5 gap-4">
-      <div *ngFor="let movie of movies">
-        <img [src]="getPosterUrl(movie.posterPath)" class="w-full h-40 object-cover rounded" />
-        <p class="mt-2 text-sm font-light">{{ movie.title }}</p>
-      </div>
-    </div>
-
-    <div *ngIf="showBooksList" class="grid grid-cols-5 gap-4">
-      <div *ngFor="let book of books">
-        <img [src]="book.artwork || 'https://via.placeholder.com/150'" class="w-full h-40 object-cover rounded" />
-        <p class="mt-2 text-sm font-light">{{ book.title }}</p>
-        <p class="text-xs text-gray-400">{{ book.authors }}</p>
-      </div>
-    </div>
-
-    <div *ngIf="showAlbumsList" class="grid grid-cols-5 gap-4">
-      <div *ngFor="let album of albums">
-        <img [src]="album.artwork" class="w-full h-40 object-cover rounded" />
-        <p class="mt-2 text-sm font-semibold">{{ album.title }}</p>
-        <p class="text-xs text-gray-400">{{ album.artist }}</p>
-      </div>
-    </div>
-
-    <div *ngIf="showGamesList" class="grid grid-cols-5 gap-4">
-      <div *ngFor="let game of games">
-        <img [src]="game.artwork" class="w-full h-40 object-cover rounded" />
-        <p class="mt-2 text-sm font-semibold">{{ game.title }}</p>
-      </div>
-    </div>
-  </div>
 </div>

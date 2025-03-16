@@ -38,6 +38,7 @@ export class AlbumsService {
         }
   
         return response.results.albummatches.album.map((album: any) => ({
+          id: album.mbid,
           title: album.name ?? "Untitled",
           artist: album.artist ?? "Unknown Artist",
           image: album.image?.find((img: any) => img.size === "extralarge")?.['#text']  // get largest

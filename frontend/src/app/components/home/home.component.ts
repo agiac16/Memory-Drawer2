@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
 
   logout() {
     localStorage.removeItem('token'); // Remove token
+    localStorage.removeItem('userId');
     this.checkLoginStatus(); // Update button state
   }
 }

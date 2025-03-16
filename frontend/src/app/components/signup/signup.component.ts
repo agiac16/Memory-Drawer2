@@ -27,7 +27,7 @@ export class SignupComponent {
 
     try {
       const response = await firstValueFrom(
-        this.http.post<{ success: boolean; message?: string; token?: string }>(this.apiUrl, payload)
+        this.http.post<{ success: boolean; message?: string; token?: string, userId?: string }>(this.apiUrl, payload)
       );
 
       if (response.success) {
@@ -36,6 +36,9 @@ export class SignupComponent {
         // Store the token for auto-login
         if (response.token) {
           localStorage.setItem('token', response.token);
+        }
+        if (response.userId) { 
+          localStorage.setItem('userId', response.userId)
         }
 
         // Redirect user after signup

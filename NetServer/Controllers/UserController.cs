@@ -56,7 +56,7 @@ public class UserController : Controller
         // Generate JWT Token for immediate login
         string token = _tokenProvider.GenerateToken(user);
 
-        return Ok(new { success = true, message = "User registered successfully!", token = token });
+        return Ok(new { success = true, message = "User registered successfully!", token = token, userId = user.Id });
     }
 
     [HttpPost("login")] // explicitly state the loginreques comes from body
@@ -82,6 +82,17 @@ public class UserController : Controller
             username = user.Username,
             token = token
         });
+    }
+
+    [HttpGet("{userId}/logged")]
+    public async Task<ActionResult> GetUserLogged([FromRoute] string userId) { 
+        if (string.IsNullOrWhiteSpace(userId)) return BadRequest("User ID required");
+
+        var user = await _userRepository.GetByIdAsync(userId);
+
+        if (user == null) return NotFound("User not found");
+
+        return Ok(new { success = true, loggedItems = user.Logged});
     }
 
     // get users info -- test endpoint

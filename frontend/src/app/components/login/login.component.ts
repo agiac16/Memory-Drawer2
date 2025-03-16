@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  username: string = ''; 
+  email: string = ''; 
   password: string = ''; 
   apiUrl = 'http://localhost:5000/api/user/login';
   errorMessage: string = '';
@@ -25,7 +25,7 @@ export class LoginComponent {
   
     // Ensure valid payload is sent
     const payload = { 
-      email: this.username.trim(), // Ensure you're sending the correct field (email)
+      email: this.email.trim(), // Ensure you're sending the correct field (email)
       password: this.password.trim() 
     };
   

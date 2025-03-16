@@ -41,11 +41,14 @@ public class GameController : Controller
     {
         if (request == null) return BadRequest("Invalid JSON");
 
+        Console.WriteLine($"Received UserId: {request.UserId}, ItemId: {request.ItemId}");
+
+
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.ItemId))
         {
             return BadRequest("User Id and Game Id are required");
         }
-
+        
         // Ensure JSON response format
         string url = $"https://www.giantbomb.com/api/game/{request.ItemId}/?api_key={_gameApiKey}&format=json";
 
@@ -63,6 +66,7 @@ public class GameController : Controller
 
         // read and parse
         var res = await response.Content.ReadAsStringAsync();
+        Console.WriteLine("API" + res);
         var gameData = JsonSerializer.Deserialize<GiantBombResponse>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (gameData?.Results == null) return BadRequest("Invalid game data received");

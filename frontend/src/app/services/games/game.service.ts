@@ -34,7 +34,8 @@ export class GameService {
           if (!response.results) return [];
 
           return response.results.map((game: any) => ({
-            title: game.gam ?? 'Untitled',
+            id: game.id,
+            title: game.name ?? 'Untitled',
             artwork: game.image?.medium_url
               ? game.image.medium_url // Use artwork directly
               : 'https://via.placeholder.com/150',
