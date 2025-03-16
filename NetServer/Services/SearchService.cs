@@ -45,7 +45,8 @@ public class SearchService
 
     public async Task<string?> SearchGamesAsync(string query)
     {
-        string url = $"https://www.giantbomb.com/api/search/?api_key={_giantBombApiKey}&query={query}&format=json";
+        // ensure were only searching games
+        string url = $"https://www.giantbomb.com/api/search/?api_key={_giantBombApiKey}&query={query}&format=json&resources=game";
         var req = new HttpRequestMessage(HttpMethod.Get, url);
 
         req.Headers.Add("User-Agent", "MemoryDrawerApp/1.0");

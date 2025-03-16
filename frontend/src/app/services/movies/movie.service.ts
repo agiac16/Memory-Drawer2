@@ -55,6 +55,7 @@ export class MovieService {
       );
   }
 
+  // used to display in the row
   getFirstMovieImageUrl(userId: string): Observable<string | null> {
     return new Observable(observer => {
         this.getUserMovies(userId).subscribe({

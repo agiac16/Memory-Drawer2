@@ -9,5 +9,4 @@ public interface IMediaRepository<T> where T : class {
     Task AddItemToUserAsync(string userId, T item); 
     Task<bool> UpdateRatingAsync(string userId, string apiId, float rating);
     Task<bool>  DeleteItemAsync(string userId, string apiId);
-    Task<bool> LogEntryAsync(string userId, string apiId, DateTime dateConsumed, float? rating = null);
 }

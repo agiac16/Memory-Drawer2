@@ -40,11 +40,10 @@ export class BookService {
           }
 
           return response.items.map((book: any) => ({
+            id: book.id,
             title: book.volumeInfo?.title ?? 'Untitled',
             authors: book.volumeInfo?.authors?.join(', ') ?? 'Unknown Author',
-            thumbnail: book.volumeInfo?.imageLinks?.thumbnail
-              ? book.volumeInfo.imageLinks.thumbnail
-              : 'https://via.placeholder.com/150',
+            thumbnail: book.volumeInfo?.imageLinks?.thumbnail ?? 'https://via.placeholder.com/150',
           }));
         }),
         catchError((error) => {

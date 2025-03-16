@@ -38,10 +38,12 @@ export class AddModalComponent {
     private http: HttpClient
   ) {}
 
+  // needed so we can add
   ngOnInit() {
     this.userId = localStorage.getItem('userId') || '';
   }
 
+  // decide where to search
   onSearch() { 
     if (!this.searchQuery.trim()) return; 
 
@@ -93,25 +95,27 @@ export class AddModalComponent {
     }
   }
 
+  // need ot add dynamic refresh
   addItemToList(item: any) {
     if (!this.userId) {
       console.error("User ID not found.");
       return;
     }
-    const apiUrl = ""
+    let apiUrl = ""
 
-    if (this.selectedType !== "music") { 
-      const apiUrl = `http://localhost:5000/api/${this.selectedType}s/add`;
+    if (this.selectedType !== "album") { 
+      apiUrl = `http://localhost:5000/api/${this.selectedType}s/add`;
     } else { 
-      // handle music bcs no (s) 
-      const apiUrl = `http://localhost:5000/api/${this.selectedType}/add`;
+      // handle music, no s
+      apiUrl = `http://localhost:5000/api/music/add`;
     }
-    
-  
+
     const requestBody = {
       userId: this.userId,
       itemId: String(item.id)
     };
+
+    console.log(requestBody)
     
     if (!requestBody.itemId) {
       console.error("itemId is missing from the request!", item);

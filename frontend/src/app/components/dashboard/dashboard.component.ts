@@ -9,6 +9,7 @@ import { Movie } from '../../models/movie.model';
 import { Game } from '../../models/game.model';
 import { Book } from '../../models/book.model';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,7 +40,8 @@ export class DashboardComponent implements OnInit {
     private bookService: BookService,
     private albumService: AlbumsService,
     private gameService: GameService,
-    private addModalService: AddModalService
+    private addModalService: AddModalService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -65,15 +67,17 @@ export class DashboardComponent implements OnInit {
     this.movieService.getUserMovies(this.userId).subscribe({
       next: (response) => {
         if (!Array.isArray(response)) {
-          console.error("Unexpected Movies API response structure", response);
+          console.error('Unexpected Movies API response structure', response);
           return;
         }
         this.movies = response;
-        console.log("🎬 Processed Movies:", this.movies);
-        this.firstMovieImageUrl = this.movies.length ? this.movies[0].posterPath : null;
+        console.log('🎬 Processed Movies:', this.movies);
+        this.firstMovieImageUrl = this.movies.length
+          ? this.movieService.getPosterUrl(this.movies[0].posterPath)
+          : null;
       },
       error: (err) => {
-        console.error("Error fetching movies:", err);
+        console.error('Error fetching movies:', err);
       },
     });
   }
@@ -105,10 +109,7 @@ export class DashboardComponent implements OnInit {
     this.albumService.getUserAlbums(this.userId).subscribe({
       next: (response) => {
         if (!Array.isArray(response)) {
-          console.error(
-            'Unexpected Albums API response structure',
-            response
-          );
+          console.error('Unexpected Albums API response structure', response);
           return;
         }
 
@@ -134,7 +135,7 @@ export class DashboardComponent implements OnInit {
           return;
         }
 
-        this.games = response; 
+        this.games = response;
 
         this.firstGameImageUrl = this.games.length
           ? this.games[0].artwork
@@ -144,6 +145,87 @@ export class DashboardComponent implements OnInit {
         console.error('Error fetching games:', err);
       },
     });
+  }
+
+  removeItemFromList(item: any, type: string) {
+    if (!this.userId) {
+      console.error('User ID not found.');
+      return;
+    }
+
+    let itemId = item.apiId;
+
+    if (!itemId) {
+      console.error('Item ID not found for', item);
+      return;
+    }
+
+    let apiUrl = '';
+
+    if (type != 'albums') {
+      apiUrl = `http://localhost:5000/api/${type}/${this.userId}/${itemId}`;
+    } else {
+      apiUrl = `http://localhost:5000/api/music/${this.userId}/${itemId}`;
+    }
+
+    this.http.delete(apiUrl, { responseType: 'text' }).subscribe({
+      next: () => {
+        console.log(`Deleted ${item.title || item.name} from ${type}`);
+
+        switch (type) {
+          case 'movies':
+            this.movies = this.movies.filter((m) => m.apId !== itemId);
+            break;
+          case 'books':
+            this.books = this.books.filter((b) => b.apiId !== itemId);
+            break;
+          case 'albums':
+            this.albums = this.albums.filter((a) => a.apiId !== itemId);
+            break;
+          case 'games':
+            this.games = this.games.filter((g) => g.apiId !== itemId);
+            break;
+        }
+      },
+      error: (err) => {
+        console.error(`Error deleting ${type}:`, err);
+      },
+    });
+  }
+
+  updateRating(item: any, type: string, rating: number) {
+    if (!this.userId) {
+      console.error('User ID not found.');
+      return;
+    }
+
+    let itemId = item.apiId;
+    let apiUrl = '';
+
+    if (type != 'albums') {
+      apiUrl = `http://localhost:5000/api/${type}/${this.userId}/rate/${itemId}`;
+    } else {
+      apiUrl = `http://localhost:5000/api/music/${this.userId}/rate/${itemId}`;
+    }
+
+    const requestBody = { rating };
+
+    this.http.put(apiUrl, requestBody, { responseType: 'text' }).subscribe({
+      next: () => {
+        console.log(
+          `Updated rating for ${item.title || item.name} to ${rating}`
+        );
+
+        item.rating = rating;
+      },
+      error: (err) => {
+        console.error(`Error updating rating for ${type}:`, err);
+      },
+    });
+  }
+
+  toggleRating(item: any) {
+    item.showRating = !item.showRating; 
   }
 
   setActiveList(listType: string): void {

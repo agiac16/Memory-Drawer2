@@ -3,7 +3,6 @@ using NetServer.Models;
 namespace NetServer.Repositories;
 
 public interface IUserRepository {
-    // task for nonblocking operations
     Task<User?> GetByIdAsync(string id);
     Task<User?> GetByEmailOrUsernameAsync(string email, string username);
     Task<User?> GetByEmailAsync(string email);

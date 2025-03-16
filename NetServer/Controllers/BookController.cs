@@ -27,10 +27,11 @@ public class BookController : Controller
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchBooks([FromQuery] string title) { 
+    public async Task<IActionResult> SearchBooks([FromQuery] string title)
+    {
         if (string.IsNullOrWhiteSpace(title)) return BadRequest("Invalid Query");
 
-        var res = await _searchService.SearchBooksAsync(title); 
+        var res = await _searchService.SearchBooksAsync(title);
         if (res == null) return NotFound("No books matching search");
 
         return Ok(res);
@@ -42,27 +43,25 @@ public class BookController : Controller
         if (request == null) return BadRequest("Invalid JSON");
 
         if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrWhiteSpace(request.ItemId))
-            return BadRequest("User Id and Book Id are required");
+            return BadRequest("User ID and Book ID are required");
 
-        // Use Google Books API
-        string url = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{request.ItemId}&key={_bookApiKey}";
+        string url = $"https://www.googleapis.com/books/v1/volumes/{request.ItemId}?key={_bookApiKey}";
 
         var res = await _httpClient.GetStringAsync(url);
 
-        if (string.IsNullOrWhiteSpace(res)) return NotFound("Book not found in Google Books API");
+        if (string.IsNullOrWhiteSpace(res))
+            return NotFound("Book not found in Google Books API");
 
-        var bookResponse = JsonSerializer.Deserialize<GoogleBooksResponse>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var bookResponse = JsonSerializer.Deserialize<GoogleBook>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        if (bookResponse == null || bookResponse.Items == null || bookResponse.Items.Count == 0)
-            return NotFound("No book found with this ISBN");
+        if (bookResponse == null || bookResponse.VolumeInfo == null)
+            return NotFound("No book found with this ID");
 
-        var bookInfo = bookResponse.Items[0].VolumeInfo;
-
-        if (bookInfo == null) return BadRequest("Invalid book data received");
-
-        string title = bookInfo.Title ?? "Unknown Title";
-        string authorName = (bookInfo.Authors != null && bookInfo.Authors.Count > 0) ? string.Join(", ", bookInfo.Authors) : "Unknown Author";
-        string coverUrl = bookInfo.ImageLinks?.Thumbnail ?? "";
+        string title = bookResponse.VolumeInfo.Title ?? "Unknown Title";
+        string authorName = bookResponse.VolumeInfo.Authors != null && bookResponse.VolumeInfo.Authors.Count > 0
+            ? string.Join(", ", bookResponse.VolumeInfo.Authors)
+            : "Unknown Author";
+        string coverUrl = bookResponse.VolumeInfo.ImageLinks?.Thumbnail ?? "";
 
         var book = new Book
         {
