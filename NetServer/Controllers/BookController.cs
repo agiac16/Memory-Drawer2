@@ -76,7 +76,8 @@ public class BookController : Controller
                 Title = title,
                 Authors = authorName,
                 Artwork = coverUrl,
-                Rating = null
+                Rating = null,
+                AddedAt = DateTime.UtcNow
             };
 
             await _bookRepository.AddItemToUserAsync(request.UserId, book);

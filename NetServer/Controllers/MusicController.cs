@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NetServer.Models;
 using NetServer.Repositories;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 [EnableCors("_myAllowSpecificOrigins")]
 [ApiController]
@@ -70,7 +71,8 @@ public class MusicController : Controller
                 Title = musicDetails.Album.Name ?? "Unknown Title",
                 Artist = musicDetails.Album.Artist ?? "Unknown Artist",
                 Artwork = artworkUrl,
-                Rating = null
+                Rating = null,
+                AddedAt = DateTime.UtcNow
             };
 
             await _musicRepository.AddItemToUserAsync(request.UserId, music);

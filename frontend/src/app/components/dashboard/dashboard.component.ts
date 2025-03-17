@@ -34,6 +34,8 @@ export class DashboardComponent implements OnInit {
   showBooksList = false;
   showAlbumsList = false;
   showGamesList = false;
+  activeList: string | null = null;
+  activeSort: string | null = null;
 
   constructor(
     private movieService: MovieService,
@@ -48,7 +50,6 @@ export class DashboardComponent implements OnInit {
     this.userId = localStorage.getItem('userId') || '';
 
     if (this.userId) {
-      console.log('Fetching books...');
       this.loadBooks();
       this.loadAlbums();
       this.loadGames();
@@ -225,7 +226,7 @@ export class DashboardComponent implements OnInit {
   }
 
   toggleRating(item: any) {
-    item.showRating = !item.showRating; 
+    item.showRating = !item.showRating;
   }
 
   setActiveList(listType: string): void {
@@ -233,6 +234,39 @@ export class DashboardComponent implements OnInit {
     this.showBooksList = listType === 'books';
     this.showAlbumsList = listType === 'albums';
     this.showGamesList = listType === 'games';
+
+    console.log(this.albums);
+
+    this.activeList = listType;
+  }
+
+  sortListBy(activeList: string, criteria: 'rating' | 'title' | 'added') {
+    if (!this.activeList) return;
+
+    let list: any[] = [];
+
+    switch (this.activeList) {
+      case 'movies': list = this.movies; break;
+      case 'games': list = this.games; break;
+      case 'albums': list = this.albums; break;
+      case 'books': list = this.books; break;
+    }
+
+    if (list.length === 0) return; 
+    // sort
+    list.sort((a, b) => { 
+      if(criteria === 'rating') return (b.rating ?? 0) - (a.rating ?? 0); 
+      if (criteria === 'title') return a.title.localeCompare(b.title);
+      if (criteria === 'added') {
+        const dateA = new Date(a.addedAt).getTime();
+        const dateB = new Date(b.addedAt).getTime();
+        return dateA - dateB; // Sort by most recent first
+    }
+      return 0;
+    });
+
+    console.log(`After sorting by ${criteria}:`, list.map(item => ({ title: item.title, addedAt: item.addedAt })));
+
   }
 
   getPosterUrl(posterPath: string): string {

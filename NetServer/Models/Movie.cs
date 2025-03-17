@@ -6,5 +6,6 @@ public class Movie : IMediaItem {
     public required string Title { get; set; }
     public string? PosterPath { get; set; } 
     public float? Rating { get; set; }   
+    public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 }
 

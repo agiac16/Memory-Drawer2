@@ -7,4 +7,5 @@ public class Book : IMediaItem {
     public required string Authors { get; set; }
     public required string Artwork { get; set; } 
     public float? Rating { get; set; }
+    public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 }

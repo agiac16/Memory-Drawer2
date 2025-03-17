@@ -45,6 +45,7 @@ export class AlbumsService {
             || album.image?.find((img: any) => img.size === "large")?.['#text']
             || 'https://via.placeholder.com/150', // Fallback image
         }));
+        
       }),
       catchError((error) => {
         console.error("Error fetching albums:", error);

@@ -37,7 +37,28 @@
   <section class="max-w-5xl w-full mx-auto px-8 mt-8">
     <!-- Movies List -->
     <div *ngIf="showMoviesList">
-      <h2 class="text-xl font-semibold mb-4">Movies</h2>
+
+      <!-- Sort and Title -->
+      <section class="flex mb-4 justify-between">
+        <h2 class="text-xl font-semibold">Movies</h2>
+        <div class="flex space-x-2">
+          <h2 class="py-1">Sort by:</h2>
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('movies', 'rating')"
+          >
+            Rating
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('movies', 'title')"
+          >
+            Title
+          </button>
+        </div>
+      </section>
+
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
         <div
           *ngFor="let movie of movies"
@@ -73,7 +94,27 @@
 
     <!-- Books List -->
     <div *ngIf="showBooksList">
-      <h2 class="text-xl font-semibold mb-4">Books</h2>
+
+      <section class="flex mb-4 justify-between">
+        <h2 class="text-xl font-semibold">Books</h2>
+        <div class="flex space-x-2">
+          <h2 class="py-1">Sort by:</h2>
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('books', 'rating')"
+          >
+            Rating
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('books', 'title')"
+          >
+            Title
+          </button>
+        </div>
+      </section>
+
       <div class="grid grid-cols-5 gap-4">
         <div *ngFor="let book of books" class="relative">
           <button
@@ -107,7 +148,35 @@
 
     <!-- Albums List -->
     <div *ngIf="showAlbumsList">
-      <h2 class="text-lg font-semibold mb-4">Albums</h2>
+      
+      <section class="flex mb-4 justify-between">
+        <h2 class="text-xl font-semibold">Albums</h2>
+        <div class="flex space-x-2">
+          <h2 class="py-1">Sort by:</h2>
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('albums', 'rating')"
+          >
+            Rating
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('albums', 'title')"
+          >
+            Title
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('games', 'added')"
+          >
+            Added
+          </button>
+          
+        </div>
+      </section>
+
       <div class="grid grid-cols-5 gap-5">
         <div *ngFor="let album of albums" class="relative">
           <button
@@ -141,7 +210,34 @@
 
     <!-- Games List -->
     <div *ngIf="showGamesList">
-      <h2 class="text-lg font-semibold mb-4">Games</h2>
+      
+      <section class="flex mb-4 justify-between">
+        <h2 class="text-xl font-semibold">Games</h2>
+        <div class="flex space-x-2">
+          <h2 class="py-1">Sort by:</h2>
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('games', 'rating')"
+          >
+            Rating
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('games', 'title')"
+          >
+            Title
+          </button>
+
+          <button
+            class="rounded-2xl px-2 py-1 transition-all focus:outline-none focus:bg-gray-700"
+            (click)="sortListBy('games', 'added')"
+          >
+            Added
+          </button>
+        </div>
+      </section>
+
       <div class="grid grid-cols-5 gap-5">
         <div *ngFor="let game of games" class="relative">
           <button

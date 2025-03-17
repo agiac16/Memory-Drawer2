@@ -74,7 +74,8 @@ public class MovieController : Controller
                 ApiId = request.ItemId,
                 Title = movieDetails.Title ?? "Unknown Title",
                 PosterPath = posterUrl,
-                Rating = null
+                Rating = null,
+                AddedAt = DateTime.UtcNow
             };
 
             await _movieRepository.AddItemToUserAsync(request.UserId, movie);

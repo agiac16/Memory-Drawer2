@@ -4,4 +4,5 @@ export interface Movie {
     apiId: string;
     rating?: number | null; 
     posterPath: string;
+    addedAt: Date;
   }
