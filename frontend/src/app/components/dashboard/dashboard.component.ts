@@ -10,11 +10,12 @@ import { Game } from '../../models/game.model';
 import { Book } from '../../models/book.model';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -23,19 +24,28 @@ export class DashboardComponent implements OnInit {
   albums: Album[] = [];
   books: Book[] = [];
   games: Game[] = [];
+  recentlyAddedItems: any[] = [];
+  allItems: any[] = [];
+  filteredItems: any[] = [];
   userId = '';
 
   firstBookImageUrl: string | null = null;
   firstMovieImageUrl: string | null = null;
   firstAlbumImageUrl: string | null = null;
   firstGameImageUrl: string | null = null;
+  firstRecentlyAddedImageUrl: string | null = null;
 
   showMoviesList = false;
   showBooksList = false;
   showAlbumsList = false;
   showGamesList = false;
+  showRecentlyAdded = false;
+  isSearching: boolean = false;
+
   activeList: string | null = null;
   activeSort: string | null = null;
+  searchQuery: string | null = null;
+
 
   constructor(
     private movieService: MovieService,
@@ -76,6 +86,8 @@ export class DashboardComponent implements OnInit {
         this.firstMovieImageUrl = this.movies.length
           ? this.movieService.getPosterUrl(this.movies[0].posterPath)
           : null;
+
+          this.getRecentlyAdded();
       },
       error: (err) => {
         console.error('Error fetching movies:', err);
@@ -97,6 +109,8 @@ export class DashboardComponent implements OnInit {
         this.firstBookImageUrl = this.books.length
           ? this.books[0].artwork
           : null;
+
+          this.getRecentlyAdded();
       },
       error: (err) => {
         console.error('Error fetching books:', err);
@@ -119,6 +133,8 @@ export class DashboardComponent implements OnInit {
         this.firstAlbumImageUrl = this.albums.length
           ? this.albums[0].artwork
           : null;
+
+          this.getRecentlyAdded();
       },
       error: (err) => {
         console.error('Error fetching albums:', err);
@@ -141,6 +157,8 @@ export class DashboardComponent implements OnInit {
         this.firstGameImageUrl = this.games.length
           ? this.games[0].artwork
           : null;
+
+          this.getRecentlyAdded();
       },
       error: (err) => {
         console.error('Error fetching games:', err);
@@ -234,6 +252,7 @@ export class DashboardComponent implements OnInit {
     this.showBooksList = listType === 'books';
     this.showAlbumsList = listType === 'albums';
     this.showGamesList = listType === 'games';
+    this.showRecentlyAdded = listType === 'recentlyAdded';
 
     console.log(this.albums);
 
@@ -260,7 +279,7 @@ export class DashboardComponent implements OnInit {
       if (criteria === 'added') {
         const dateA = new Date(a.addedAt).getTime();
         const dateB = new Date(b.addedAt).getTime();
-        return dateA - dateB; // Sort by most recent first
+        return dateB - dateA; // Sort by most recent first
     }
       return 0;
     });
@@ -269,9 +288,61 @@ export class DashboardComponent implements OnInit {
 
   }
 
+  getRecentlyAdded(): void {
+    this.allItems = [
+      ...this.movies.map((item) => ({ ...item, type: "movies" })),
+      ...this.books.map((item) => ({ ...item, type: "books" })),
+      ...this.albums.map((item) => ({ ...item, type: "albums" })),
+      ...this.games.map((item) => ({ ...item, type: "games" })),
+    ]; // all in one list with type assigned
+  
+    this.recentlyAddedItems = this.allItems
+      .filter(i => i.addedAt)
+      .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+      .slice(0, 20);
+  
+    if (this.recentlyAddedItems.length > 0) {
+      const randomIndex = Math.floor(Math.random() * this.recentlyAddedItems.length);
+      this.firstRecentlyAddedImageUrl = this.recentlyAddedItems[randomIndex].artwork || this.recentlyAddedItems[randomIndex].posterPath || null;
+    } else {
+      this.firstRecentlyAddedImageUrl = null;
+    }
+  }
+
+  searchUserItems(): void {
+    if (!this.searchQuery?.trim()) {
+      this.filteredItems = []; // reset search results
+      this.isSearching = false; // show normal
+      return;
+    }
+  
+    const lower = this.searchQuery.toLowerCase();
+  
+    this.filteredItems = this.allItems.filter(i =>
+      i.title.toLowerCase().includes(lower) || 
+      (i.artist && i.artist.toLowerCase().includes(lower)) ||
+      (i.authors && i.authors.toLowerCase().includes(lower))
+    );
+  
+    this.isSearching = true; // so we can show no res
+  }
+
   getPosterUrl(posterPath: string): string {
     return posterPath
       ? `https://image.tmdb.org/t/p/w200${posterPath}`
       : 'https://via.placeholder.com/150';
+  }
+
+  // formatting helpersr
+  formatDate(dateString: string): string { 
+    if (!dateString) return "Unknown Date";
+
+    const date = new Date(dateString); 
+    return date.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+  }
+
+  formatItemType(type: string): string {
+    if (!type) return "Unknown Type";
+    return type.charAt(0).toUpperCase() + type.slice(1);
   }
 }

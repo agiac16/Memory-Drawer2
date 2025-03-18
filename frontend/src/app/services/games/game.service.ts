@@ -39,6 +39,13 @@ export class GameService {
             artwork: game.image?.medium_url
               ? game.image.medium_url // Use artwork directly
               : 'https://via.placeholder.com/150',
+            description: game.deck ?? 'No description available.', // Short game description
+            releaseDate: game.original_release_date
+              ? new Date(game.original_release_date).toLocaleDateString(
+                  'en-US',
+                  { month: 'short', day: '2-digit', year: 'numeric' }
+                )
+              : 'Unknown Release Date',
           }));
         }),
         catchError((error) => {

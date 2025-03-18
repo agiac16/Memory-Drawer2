@@ -19,8 +19,10 @@ export class AddModalComponent {
   selectedType: string = '';
   searchQuery: string = '';
   searchResults: any[] = [];
-  userId: string = ''; // Fetch user ID from localStorage
-  successMessage: string = ''; // Display success message after adding
+  userId: string = '';
+  successMessage: string = '';
+
+  selectedItem: any | null = null; // Stores the item user clicked on
 
   types = [
     { value: 'movie', label: 'Movie' },
@@ -38,12 +40,11 @@ export class AddModalComponent {
     private http: HttpClient
   ) {}
 
-  // needed so we can add
   ngOnInit() {
     this.userId = localStorage.getItem('userId') || '';
   }
 
-  // decide where to search
+  // Handles search request
   onSearch() { 
     if (!this.searchQuery.trim()) return; 
 
@@ -95,33 +96,59 @@ export class AddModalComponent {
     }
   }
 
-  // need ot add dynamic refresh
+  // Handles selecting an item for more details
+  selectItem(item: any) {
+    this.selectedItem = {
+      id: item.id,
+      title: item.title || item.name || "Untitled",
+      image:
+        item.poster_path ||
+        item.artwork ||
+        item.image ||
+        item.thumbnail ||
+        "https://via.placeholder.com/150",
+      description: item.description || "No description available.",
+      rating: item.rating !== "N/A" ? item.rating + "/5" : "Not Rated",
+      type: this.selectedType,
+      extraInfo: this.getExtraInfo(item),
+    };
+  }
+
+  getExtraInfo(item: any): string {
+    switch (this.selectedType) {
+      case "movie":
+        return `⭐ ${item.rating}/5`;
+        case "book":
+      case "book":
+        return `${item.pageCount} pages | Published: ${item.publishedDate}`;
+      case "album":
+        return `Genre: ${item.genre || "Unknown"} | Artist: ${item.artist}`;
+      case "game":
+        return `Release: ${item.releaseDate}`;
+      default:
+        return "";
+    }
+  }
+
+  // Handles returning to search results
+  backToSearch() {
+    this.selectedItem = null;
+  }
+
   addItemToList(item: any) {
     if (!this.userId) {
       console.error("User ID not found.");
       return;
     }
-    let apiUrl = ""
-
-    if (this.selectedType !== "album") { 
-      apiUrl = `http://localhost:5000/api/${this.selectedType}s/add`;
-    } else { 
-      // handle music, no s
-      apiUrl = `http://localhost:5000/api/music/add`;
-    }
+    let apiUrl = this.selectedType !== "album"
+      ? `http://localhost:5000/api/${this.selectedType}s/add`
+      : `http://localhost:5000/api/music/add`;
 
     const requestBody = {
       userId: this.userId,
       itemId: String(item.id)
     };
 
-    console.log(requestBody)
-    
-    if (!requestBody.itemId) {
-      console.error("itemId is missing from the request!", item);
-      return;
-    }
-  
     this.http.post(apiUrl, requestBody).subscribe({
       next: () => {
         this.successMessage = `'${item.title || item.name}' added successfully!`;

@@ -33,7 +33,6 @@ export class BookService {
         map((response: any) => {
           console.log('API Response:', response);
 
-         
           if (!response.items || response.items.length === 0) {
             console.warn('No books found');
             return [];
@@ -43,7 +42,19 @@ export class BookService {
             id: book.id,
             title: book.volumeInfo?.title ?? 'Untitled',
             authors: book.volumeInfo?.authors?.join(', ') ?? 'Unknown Author',
-            thumbnail: book.volumeInfo?.imageLinks?.thumbnail ?? 'https://via.placeholder.com/150',
+            thumbnail:
+              book.volumeInfo?.imageLinks?.thumbnail ??
+              'https://via.placeholder.com/150',
+            description:
+              book.volumeInfo?.description ?? 'No description available.',
+            rating: book.volumeInfo?.averageRating ?? 'Not Rated',
+            publishedDate: book.volumeInfo?.publishedDate
+              ? new Date(book.volumeInfo.publishedDate).toLocaleDateString(
+                  'en-US',
+                  { month: 'short', day: '2-digit', year: 'numeric' }
+                )
+              : 'Unknown Date',
+            pageCount: book.volumeInfo?.pageCount ?? 'N/A',
           }));
         }),
         catchError((error) => {

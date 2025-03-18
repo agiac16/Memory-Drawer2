@@ -1,16 +1,18 @@
-<div class="fixed inset-0 flex items-center justify-center bg-opacity-50">
+<div class="fixed inset-0 flex items-center justify-center">
   <div class="bg-gray-700 p-6 rounded-lg w-full max-w-3xl shadow-lg">
-    
     <!-- Dropdown to Select Type -->
-    <select (change)="onTypeSelect($event)" class="w-full p-2 border border-gray-300 rounded mb-4 text-white font-semibold">
+    <select
+      (change)="onTypeSelect($event)"
+      class="w-full p-2 border border-gray-300 rounded mb-4 text-white font-semibold"
+    >
       <option value="">Add new...</option>
       <option *ngFor="let type of types" [value]="type.value">
         {{ type.label }}
       </option>
     </select>
 
-    <!-- Search -->
-    <div *ngIf="selectedType" class="mb-4">
+    <!-- Search Bar -->
+    <div *ngIf="selectedType && !selectedItem" class="mb-4">
       <div class="flex items-center gap-2 text-white font-semibold">
         <input
           type="text"
@@ -19,55 +21,101 @@
           [placeholder]="'Search for ' + selectedType"
           class="flex-1 p-2 border border-gray-300 rounded capitalize"
         />
-        <button (click)="onSearch()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button
+          (click)="onSearch()"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
           Search
         </button>
       </div>
     </div>
 
-    <!-- success -->
+    <!-- Success Message -->
     <div *ngIf="successMessage" class="text-green-400 text-center mb-4">
       {{ successMessage }}
     </div>
 
-    <!-- results -->
-    <div *ngIf="searchResults.length > 0" class="overflow-y-auto max-h-96">
+    <!-- Search Results -->
+    <div
+      *ngIf="searchResults.length > 0 && !selectedItem"
+      class="overflow-y-auto max-h-96"
+    >
       <div class="grid grid-cols-4 gap-4">
-        
-        <div *ngFor="let item of searchResults.slice(0, 16)" class="relative p-2 border rounded shadow-sm text-center bg-gray-800">
-          
-          <!-- add button -->
-          <button (click)="addItemToList(item)" class="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full hover:bg-green-600">
-            +
-          </button>
-
-          <!-- images || movie, game, album, book-->
+        <div
+          *ngFor="let item of searchResults.slice(0, 16)"
+          class="relative p-2 border rounded shadow-sm text-center bg-gray-800 cursor-pointer hover:bg-gray-700"
+          (click)="selectItem(item)"
+        >
           <img
-            [src]="item.poster_path || item.artwork || item.image || item.thumbnail || 'https://via.placeholder.com/150'"
+            [src]="
+              item.poster_path ||
+              item.artwork ||
+              item.image ||
+              item.thumbnail ||
+              'https://via.placeholder.com/150'
+            "
             alt="{{ item.title || item.name }}"
             class="w-full h-40 object-cover rounded"
           />
-
-          <!-- Title -->
           <p class="text-sm font-semibold mt-2 text-white">
             {{ item.title || item.name }}
           </p>
+        </div>
+      </div>
+    </div>
 
-          <!-- Extra Info -->
-          <p class="text-xs text-gray-300" *ngIf="item.artist || item.authors">
-            {{ item.artist || item.authors }}
+    <div *ngIf="selectedItem" class="p-4 bg-gray-800 rounded-lg shadow-md">
+      <button
+        class="text-gray-400 text-sm underline mb-2"
+        (click)="backToSearch()"
+      >
+        ← Back to Search Results
+      </button>
+    
+      <div class="flex items-center gap-6">
+        <!-- Item Image -->
+        <img
+          [src]="selectedItem.image"
+          class="w-40 h-56 object-cover rounded-lg"
+        />
+    
+        <div>
+          <!-- Title & Rating -->
+          <section class="flex flex-row justify-between">
+            <h2 class="text-xl font-semibold text-white">
+              {{ selectedItem.title }}
+            </h2>
+          </section>
+    
+          <!-- Extra Info (Genre, Release Date, etc.) -->
+          <p class="text-gray-400 text-sm mt-1">
+            {{ selectedItem.extraInfo }}
           </p>
-          
+    
+          <!-- Description -->
+          <p class="text-gray-300 text-sm mt-2">
+            {{ selectedItem.description }}
+          </p>
+    
+          <!-- Add to List Button -->
+          <button
+            (click)="addItemToList(selectedItem)"
+            class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            + Add to My List
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Close Button -->
     <div class="flex justify-end mt-4">
-      <button (click)="close()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+      <button
+        (click)="close()"
+        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
         Close
       </button>
     </div>
-
   </div>
 </div>
