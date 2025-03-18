@@ -5,4 +5,5 @@ export interface Book {
     rating: number,
     artwork: string,
     finished: boolean
+    addedAt: Date;
   }

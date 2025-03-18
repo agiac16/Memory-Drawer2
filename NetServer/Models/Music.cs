@@ -7,4 +7,5 @@ public class Music : IMediaItem {
     public required string Artist { get; set; }  
     public string? Artwork { get; set; } 
     public float? Rating { get; set; }
+    public DateTime AddedAt { get; set; } = DateTime.UtcNow;
 }

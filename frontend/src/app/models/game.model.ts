@@ -3,4 +3,5 @@ export interface Game {
     title: string,
     artwork: string,
     rating: number
+    addedAt: Date;
   }

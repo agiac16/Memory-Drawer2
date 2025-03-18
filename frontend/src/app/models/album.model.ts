@@ -3,5 +3,6 @@ export interface Album {
     title: string,
     artist: string,
     artwork: string,
-    rating: number
+    rating: number;
+    addedAt: Date;
   }

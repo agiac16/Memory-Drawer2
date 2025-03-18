@@ -65,19 +65,24 @@ public class MediaRepository<T> : IMediaRepository<T> where T : class, IMediaIte
     }
 
     public async Task<IEnumerable<T>> GetAllByUserAsync(string userId)
+{
+    try
     {
-        try
-        {
-            var user = await _users.Find(GetUserFilter(userId)).FirstOrDefaultAsync();
-            return user?.GetMediaList<T>() ?? new List<T>(); // get all of a users list of type T or new
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error fetching all media items for user: {e.Message}");
-            return new List<T>();
-        }
+        var user = await _users.Find(GetUserFilter(userId)).FirstOrDefaultAsync();
 
+        if (user == null) return new List<T>();
+
+        var mediaList = user.GetMediaList<T>() ?? new List<T>();
+
+        // sort items by added
+        return mediaList.OrderByDescending(item => (item as IMediaItem)?.AddedAt).ToList();
     }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Error fetching all media items for user: {e.Message}");
+        return new List<T>();
+    }
+}
 
     public async Task AddItemToUserAsync(string userId, T item)
     {

@@ -43,8 +43,10 @@ export class AlbumsService {
           artist: album.artist ?? "Unknown Artist",
           image: album.image?.find((img: any) => img.size === "extralarge")?.['#text']  // get largest
             || album.image?.find((img: any) => img.size === "large")?.['#text']
-            || 'https://via.placeholder.com/150', // Fallback image
+            || 'https://via.placeholder.com/150',
+            genre: album.genre,
         }));
+        
       }),
       catchError((error) => {
         console.error("Error fetching albums:", error);

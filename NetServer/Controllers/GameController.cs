@@ -82,7 +82,8 @@ public class GameController : Controller
                 ApiId = request.ItemId,
                 Title = gameDetails.Name,
                 Artwork = artworkUrl,
-                Rating = null
+                Rating = null,
+                AddedAt = DateTime.UtcNow
             };
 
             await _gameRepository.AddItemToUserAsync(request.UserId, game);
