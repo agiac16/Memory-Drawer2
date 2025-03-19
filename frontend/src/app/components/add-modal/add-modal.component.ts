@@ -45,47 +45,47 @@ export class AddModalComponent {
   }
 
   // Handles search request
-  onSearch() { 
-    if (!this.searchQuery.trim()) return; 
+  onSearch() {
+    if (!this.searchQuery.trim()) return;
 
     switch (this.selectedType) {
       case 'movie':
         this.movieService.searchMovie(this.searchQuery).subscribe({
-          next: (results) => this.searchResults = results,
+          next: (results) => (this.searchResults = results),
           error: (err) => {
             console.error('Movie search failed:', err);
             this.searchResults = [];
-          }
+          },
         });
         break;
 
       case 'book':
         this.bookService.searchBook(this.searchQuery).subscribe({
-          next: (results) => this.searchResults = results,
+          next: (results) => (this.searchResults = results),
           error: (err) => {
             console.error('Book search failed:', err);
             this.searchResults = [];
-          }
+          },
         });
         break;
 
       case 'album':
         this.albumService.searchAlbums(this.searchQuery).subscribe({
-          next: (results) => this.searchResults = results,
+          next: (results) => (this.searchResults = results),
           error: (err) => {
             console.error('Album search failed:', err);
             this.searchResults = [];
-          }
+          },
         });
         break;
 
       case 'game':
         this.gameService.searchGames(this.searchQuery).subscribe({
-          next: (results) => this.searchResults = results,
+          next: (results) => (this.searchResults = results),
           error: (err) => {
             console.error('Game search failed:', err);
             this.searchResults = [];
-          }
+          },
         });
         break;
 
@@ -100,15 +100,15 @@ export class AddModalComponent {
   selectItem(item: any) {
     this.selectedItem = {
       id: item.id,
-      title: item.title || item.name || "Untitled",
+      title: item.title || item.name || 'Untitled',
       image:
         item.poster_path ||
         item.artwork ||
         item.image ||
         item.thumbnail ||
-        "https://via.placeholder.com/150",
-      description: item.description || "No description available.",
-      rating: item.rating !== "N/A" ? item.rating + "/5" : "Not Rated",
+        'https://via.placeholder.com/150',
+      description: item.description || 'No description available.',
+      rating: item.rating !== 'N/A' ? item.rating + '/5' : 'Not Rated',
       type: this.selectedType,
       extraInfo: this.getExtraInfo(item),
     };
@@ -116,17 +116,16 @@ export class AddModalComponent {
 
   getExtraInfo(item: any): string {
     switch (this.selectedType) {
-      case "movie":
+      case 'movie':
         return `⭐ ${item.rating}/5`;
-        case "book":
-      case "book":
+      case 'book':
         return `${item.pageCount} pages | Published: ${item.publishedDate}`;
-      case "album":
-        return `Genre: ${item.genre || "Unknown"} | Artist: ${item.artist}`;
-      case "game":
+      case 'album':
+        return `Artist: ${item.artist}`;
+      case 'game':
         return `Release: ${item.releaseDate}`;
       default:
-        return "";
+        return '';
     }
   }
 
@@ -137,21 +136,38 @@ export class AddModalComponent {
 
   addItemToList(item: any) {
     if (!this.userId) {
-      console.error("User ID not found.");
-      return;
+        console.error('User ID not found.');
+        return;
     }
-    let apiUrl = this.selectedType !== "album"
-      ? `http://localhost:5000/api/${this.selectedType}s/add`
-      : `http://localhost:5000/api/music/add`;
 
-    const requestBody = {
-      userId: this.userId,
-      itemId: String(item.id)
+    let apiUrl = this.selectedType !== 'album'
+        ? `http://localhost:5000/api/${this.selectedType}s/add`
+        : `http://localhost:5000/api/music/add`;
+
+    const requestBody: any = {
+        userId: this.userId,
     };
+
+    if (item.id && item.id.trim() !== '') {
+        requestBody.itemId = item.id;
+    } else {
+        requestBody.title = item.title || item.name || 'Unknown Title';
+        
+        // ✅ If artist is missing, extract it from extraInfo
+        if (item.artist && item.artist.trim() !== "" && item.artist !== "Unknown Artist") {
+            requestBody.artist = item.artist.trim();
+        } else if (item.extraInfo?.startsWith("Artist: ")) {
+            requestBody.artist = item.extraInfo.replace("Artist: ", "").trim();
+        } else {
+            requestBody.artist = "DEBUG_MISSING_ARTIST";
+        }
+    }
 
     this.http.post(apiUrl, requestBody).subscribe({
       next: () => {
-        this.successMessage = `'${item.title || item.name}' added successfully!`;
+        this.successMessage = `'${
+          item.title || item.name
+        }' added successfully!`;
         setTimeout(() => (this.successMessage = ''), 3000);
       },
       error: (err) => {

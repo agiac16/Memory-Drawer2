@@ -7,5 +7,10 @@ public class ItemAddRequest
     public required string UserId { get; set; }
 
     [JsonPropertyName("itemId")]
-    public required string ItemId { get; set; }
+    public string? ItemId { get; set; }
+
+    // last fm specific - if the MBID is missing.
+    public string? Title { get; set; }   
+    public string? Artist { get; set; }
+    
 }

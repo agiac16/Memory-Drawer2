@@ -38,8 +38,6 @@ export class MovieService {
       })
       .pipe(
         map((response: any) => {
-          console.log('API Response:', response);
-
           if (!response.results) return [];
 
           return response.results.map((movie: any) => ({

@@ -31,8 +31,6 @@ export class BookService {
       })
       .pipe(
         map((response: any) => {
-          console.log('API Response:', response);
-
           if (!response.items || response.items.length === 0) {
             console.warn('No books found');
             return [];

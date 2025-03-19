@@ -46,13 +46,29 @@ public class MusicController : Controller
     [HttpPost("add")]
     public async Task<ActionResult> AddMusicToUser([FromBody] ItemAddRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId) || string.IsNullOrEmpty(request.ItemId))
-            return BadRequest("User ID and Item ID are required");
+        if (string.IsNullOrWhiteSpace(request.UserId))
+            return BadRequest("User ID is required");
 
         try
         {
-            string url = $"http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={_musicApiKey}&mbid={request.ItemId}&format=json";
-            var res = await _httpClient.GetStringAsync(url); 
+            string url;
+
+            if (!string.IsNullOrWhiteSpace(request.ItemId) && request.ItemId.ToLower() != "null") // ✅ Prevents `mbid=null`
+            {
+                url = $"http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={_musicApiKey}&mbid={request.ItemId}&format=json";
+            }
+            else if (!string.IsNullOrWhiteSpace(request.Title) && !string.IsNullOrWhiteSpace(request.Artist))
+            {
+                url = $"http://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={_musicApiKey}&artist={Uri.EscapeDataString(request.Artist)}&album={Uri.EscapeDataString(request.Title)}&format=json";
+            }
+            else
+            {
+                return BadRequest("Either Item ID (MBID) or Album Title & Artist are required.");
+            }
+
+            Console.WriteLine($"Fetching data from: {url}");
+
+            var res = await _httpClient.GetStringAsync(url);
 
             if (string.IsNullOrEmpty(res))
                 return NotFound("Item not found in API.");
@@ -67,9 +83,9 @@ public class MusicController : Controller
             var music = new Music
             {
                 UserId = request.UserId,
-                ApiId = request.ItemId,
-                Title = musicDetails.Album.Name ?? "Unknown Title",
-                Artist = musicDetails.Album.Artist ?? "Unknown Artist",
+                ApiId = request.ItemId ?? $"{request.Artist}-{request.Title}".Replace(" ", "-").ToLower(), // ✅ Generate ID if MBID is missing
+                Title = musicDetails.Album.Name ?? request.Title ?? "Unknown Title",
+                Artist = musicDetails.Album.Artist ?? request.Artist ?? "Unknown Artist",
                 Artwork = artworkUrl,
                 Rating = null,
                 AddedAt = DateTime.UtcNow
