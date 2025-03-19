@@ -36,9 +36,7 @@ export class LoginComponent {
         )
       );
   
-      if (response.success) {
-        console.log('Login successful:', response.token);
-  
+      if (response.success) {  
         if (response.token) {
           localStorage.setItem('token', response.token);
         } else {

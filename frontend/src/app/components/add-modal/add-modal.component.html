@@ -93,7 +93,7 @@
           </p>
     
           <!-- Description -->
-          <p class="text-gray-300 text-sm mt-2">
+          <p *ngIf="selectedItem?.type !== 'album'" class="text-gray-300 text-sm mt-2">
             {{ selectedItem.description }}
           </p>
     

@@ -31,8 +31,6 @@ export class SignupComponent {
       );
 
       if (response.success) {
-        console.log('Signup successful', response);
-
         // Store the token for auto-login
         if (response.token) {
           localStorage.setItem('token', response.token);

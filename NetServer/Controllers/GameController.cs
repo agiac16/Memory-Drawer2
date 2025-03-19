@@ -68,7 +68,7 @@ public class GameController : Controller
 
             // Read and parse API response
             var res = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("API Response: " + res);
+
             var gameData = JsonSerializer.Deserialize<GiantBombResponse>(res, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (gameData?.Results == null) return BadRequest("Invalid game data received");

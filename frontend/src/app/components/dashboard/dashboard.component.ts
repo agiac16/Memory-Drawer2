@@ -82,7 +82,6 @@ export class DashboardComponent implements OnInit {
           return;
         }
         this.movies = response;
-        console.log('🎬 Processed Movies:', this.movies);
         this.firstMovieImageUrl = this.movies.length
           ? this.movieService.getPosterUrl(this.movies[0].posterPath)
           : null;
@@ -189,8 +188,6 @@ export class DashboardComponent implements OnInit {
 
     this.http.delete(apiUrl, { responseType: 'text' }).subscribe({
       next: () => {
-        console.log(`Deleted ${item.title || item.name} from ${type}`);
-
         switch (type) {
           case 'movies':
             this.movies = this.movies.filter((m) => m.apiId !== itemId);
@@ -231,10 +228,6 @@ export class DashboardComponent implements OnInit {
 
     this.http.put(apiUrl, requestBody, { responseType: 'text' }).subscribe({
       next: () => {
-        console.log(
-          `Updated rating for ${item.title || item.name} to ${rating}`
-        );
-
         item.rating = rating;
       },
       error: (err) => {
@@ -253,9 +246,6 @@ export class DashboardComponent implements OnInit {
     this.showAlbumsList = listType === 'albums';
     this.showGamesList = listType === 'games';
     this.showRecentlyAdded = listType === 'recentlyAdded';
-
-    console.log(this.albums);
-
     this.activeList = listType;
   }
 
@@ -283,9 +273,6 @@ export class DashboardComponent implements OnInit {
     }
       return 0;
     });
-
-    console.log(`After sorting by ${criteria}:`, list.map(item => ({ title: item.title, addedAt: item.addedAt })));
-
   }
 
   getRecentlyAdded(): void {

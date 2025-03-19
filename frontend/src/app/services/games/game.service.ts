@@ -29,8 +29,6 @@ export class GameService {
       })
       .pipe(
         map((response: any) => {
-          console.log('api res', response);
-
           if (!response.results) return [];
 
           return response.results.map((game: any) => ({
